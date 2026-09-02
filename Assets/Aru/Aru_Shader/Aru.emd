@@ -1,0 +1,30 @@
+[Info]
+Version = 3
+
+[Effect]
+Obj = Base.fx
+Obj.show = true
+Obj[0] = Face.fx
+Obj[1] = Face.fx
+Obj[2] = Face.fx
+Obj[3] = Face.fx
+Obj[6] = Hair.fx
+Obj[7] = Hair.fx
+Obj[8] = Hair.fx
+Obj[9] = Horn.fx
+Obj[10] = Horn.fx
+Obj[11] = Body.fx
+Obj[12] = Body.fx
+Obj[13] = Body.fx
+Obj[14] = Body.fx
+Obj[15] = Body.fx
+Obj[16] = Body.fx
+Obj[17] = Body.fx
+Obj[18] = Body.fx
+Obj[19] = High_heels.fx
+Obj[20] = Coat.fx
+Obj[21] = Coat.fx
+Obj[22] = Coat_Metal.fx
+Obj[23] = Coat.fx
+Obj[24] = Feather.fx
+

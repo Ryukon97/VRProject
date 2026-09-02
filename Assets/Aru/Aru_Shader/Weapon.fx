@@ -1,0 +1,21 @@
+/* ------------------------------------------------------------
+ * AlternativeFull
+ * ------------------------------------------------------------ */
+/* created by AlternativeFullFrontend. */
+#define TEXTURE_THRESHOLD "shading_5.png"
+#define TEXTURE_SHADOW "Weapon_S.png"
+#define USE_SELFSHADOW_MODE
+#define USE_NONE_SELFSHADOW_MODE
+#define USE_HIGHLIGHT_CHEET
+float HighlightPower = 5;
+#define USE_HIGHLIGHT_COLOR_TYPE1
+float SelfShadowPower = 1;
+#define HIGHLIGHT_ANTI_AUTOLUMINOUS
+#define USE_MATERIAL_SPECULAR
+#define USE_MATERIAL_SPHERE
+#define USE_SPHERE_CHEET
+float SphereBoost = 0.3;
+float3 DefaultModeShadowColor = {1,1,1};
+#define MAX_ANISOTROPY 16
+
+#include "AlternativeFull.fxsub"
