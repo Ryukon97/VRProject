@@ -71,6 +71,24 @@ Shader "VRProject/ToonLit"
         _OutlineMaxWidth("Outline Max Width (world m)", Range(0.0005,0.05)) = 0.006
         _OutlineTintByAlbedo("Tint By Albedo", Range(0,1)) = 0.35
 
+        [Header(Depth Offset)][Space(4)]
+        // 얼굴 위에 얹힌 표정 파츠(눈/눈썹/입)가 얼굴 메시와 깊이가 거의 같아
+        // Z-파이팅을 일으킨다. 파츠를 카메라 쪽으로 살짝 당겨 항상 위에 오게 한다.
+        _ZOffset("Z Offset (toward camera)", Range(0,0.1)) = 0
+        // 아웃라인 헐은 반대로 뒤로 밀어야 표면 디테일을 덮지 않는다.
+        _OutlineZOffset("Outline Z Offset (away)", Range(0,0.1)) = 0
+
+        [Header(Surface)][Space(4)]
+        // 0 = 불투명, 1 = 투명 데칼.
+        //
+        // MMD/VRChat 모델의 표정 파츠(눈·눈썹·볼 붉힘·눈물·세로줄)는 얼굴 표면과
+        // 사실상 같은 평면에 놓인 데칼이다. 불투명으로 그리면 깊이 경쟁에서
+        // Z-파이팅이 나므로, 원본 모델은 투명 오버레이로 나중에 덧그린다.
+        // 데칼 모드는 그 동작을 되살린다.
+        [Enum(Opaque,0,Transparent Decal,1)] _Surface("Surface Type", Float) = 0
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Src Blend", Float) = 1
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Dst Blend", Float) = 0
+
         [Header(Rendering)][Space(4)]
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Float) = 2
         [Enum(Off,0,On,1)] _ZWrite("ZWrite", Float) = 1
@@ -122,9 +140,14 @@ Shader "VRProject/ToonLit"
             half   _OutlineWidth;
             half   _OutlineMaxWidth;
             half   _OutlineTintByAlbedo;
+            float  _ZOffset;
+            float  _OutlineZOffset;
             float  _AlphaClip;
             float  _SecondStep;
             float  _OutlineEnabled;
+            float  _Surface;
+            float  _SrcBlend;
+            float  _DstBlend;
             float  _Cull;
             float  _ZWrite;
         CBUFFER_END
@@ -136,6 +159,40 @@ Shader "VRProject/ToonLit"
         half ToonStep(half value, half threshold, half feather)
         {
             return smoothstep(threshold - feather, threshold + feather, value);
+        }
+
+        // 정점을 뷰 공간에서 카메라 쪽으로 당긴다(offset > 0).
+        //
+        // 실제 위치는 그대로 두고 깊이만 바꾸기 때문에, 얼굴 위에 얹힌
+        // 표정 파츠가 얼굴과 Z-파이팅하지 않고 항상 위에 그려진다.
+        // 지오메트리를 실제로 띄우면 옆에서 봤을 때 파츠가 얼굴에서 떠 보인다.
+        // offset > 0 이면 카메라 쪽으로 당기고, < 0 이면 뒤로 민다.
+        float4 ApplyZOffset(float4 positionCS, float offset)
+        {
+            if (offset == 0.0) return positionCS;
+
+            if (unity_OrthoParams.w == 0.0)   // 원근 투영
+            {
+                // positionCS.w는 -viewZ와 같다. 뷰 공간에서 카메라 앞은 z가 음수이므로,
+                // 카메라 쪽으로 당기려면 viewZ를 0에 가깝게(덜 음수로) 만들어야 한다.
+                float viewZ = -positionCS.w;
+
+                // 근평면 앞으로 넘어가면 잘려 사라지고 나눗셈도 터진다. 막아둔다.
+                float modifiedVS_Z = min(viewZ + offset, -1e-4);
+
+                float modifiedCS_Z = modifiedVS_Z * UNITY_MATRIX_P._m22 + UNITY_MATRIX_P._m23;
+                positionCS.z = modifiedCS_Z * positionCS.w / (-modifiedVS_Z);
+            }
+            else                               // 직교 투영
+            {
+            #if UNITY_REVERSED_Z
+                // 리버스드 Z에서는 가까울수록 z가 크다.
+                positionCS.z += offset / _ProjectionParams.z;
+            #else
+                positionCS.z -= offset / _ProjectionParams.z;
+            #endif
+            }
+            return positionCS;
         }
         ENDHLSL
 
@@ -196,7 +253,10 @@ Shader "VRProject/ToonLit"
                 width = min(width, _OutlineMaxWidth);
 
                 positionWS += normalWS * width;
-                o.positionCS = TransformWorldToHClip(positionWS);
+
+                // 아웃라인 헐은 뒤로 민다. 안 그러면 확장된 얼굴 헐이
+                // 그 위에 얹힌 눈·눈썹 파츠를 덮어버린다.
+                o.positionCS = ApplyZOffset(TransformWorldToHClip(positionWS), -_OutlineZOffset);
             #else
                 // 아웃라인이 꺼지면 클립 밖으로 보내 완전히 제거한다.
                 o.positionCS = float4(0, 0, -10, 1);
@@ -231,8 +291,14 @@ Shader "VRProject/ToonLit"
             Name "ForwardLit"
             Tags { "LightMode" = "UniversalForward" }
 
+            // 불투명 모드에서는 C#이 _SrcBlend=One, _DstBlend=Zero, _ZWrite=1을 넣어
+            // 사실상 블렌딩이 없는 상태가 된다.
+            // 데칼 모드에서는 SrcAlpha/OneMinusSrcAlpha + ZWrite Off가 되어
+            // 깊이 경쟁 없이 얼굴 위에 합성된다.
+            Blend [_SrcBlend] [_DstBlend]
             Cull [_Cull]
             ZWrite [_ZWrite]
+            ZTest LEqual
 
             HLSLPROGRAM
             #pragma vertex ToonVert
@@ -284,7 +350,7 @@ Shader "VRProject/ToonLit"
                 VertexPositionInputs pos = GetVertexPositionInputs(v.positionOS.xyz);
                 VertexNormalInputs nrm = GetVertexNormalInputs(v.normalOS);
 
-                o.positionCS = pos.positionCS;
+                o.positionCS = ApplyZOffset(pos.positionCS, _ZOffset);
                 o.positionWS = pos.positionWS;
                 o.normalWS   = nrm.normalWS;
                 o.uv         = TRANSFORM_TEX(v.uv, _BaseMap);
@@ -536,7 +602,7 @@ Shader "VRProject/ToonLit"
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-                o.positionCS = TransformObjectToHClip(v.positionOS.xyz);
+                o.positionCS = ApplyZOffset(TransformObjectToHClip(v.positionOS.xyz), _ZOffset);
                 o.uv = TRANSFORM_TEX(v.uv, _BaseMap);
                 return o;
             }
@@ -591,7 +657,7 @@ Shader "VRProject/ToonLit"
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-                o.positionCS = TransformObjectToHClip(v.positionOS.xyz);
+                o.positionCS = ApplyZOffset(TransformObjectToHClip(v.positionOS.xyz), _ZOffset);
                 o.normalWS = normalize(TransformObjectToWorldNormal(v.normalOS));
                 o.uv = TRANSFORM_TEX(v.uv, _BaseMap);
                 return o;

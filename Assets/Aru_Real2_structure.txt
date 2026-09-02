@@ -2,7 +2,7 @@
 
 ── 렌더러 1개 ──
   ▸ Body  [SkinnedMeshRenderer]
-      Reflection Probes:   LightProbe: BlendProbes  ReflProbe: BlendProbes
+      Reflection Probes:   LightProbe: BlendProbes  ReflProbe: Off
       [0] face_d                   셰이더: VRProject/ToonLit                      텍스처: Face_D
       [1] Morph_Parts_d            셰이더: VRProject/ToonLit                      텍스처: Morph_parts_D
       [2] Hair_d                   셰이더: VRProject/ToonLit                      텍스처: Hair_D

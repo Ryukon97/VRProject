@@ -57,35 +57,84 @@ namespace VRProject.Character
 
             [Tooltip("씬의 드리운 그림자를 받는 정도. 낮추면 그림자가 옅어진다.")]
             [Range(0f, 1f)] public float 그림자받기 = 0.5f;
+
+        }
+
+        /// <summary>
+        /// 얼굴 영역 전용. 얼굴 피부와 표정 파츠(눈·눈썹·입)를 한 그룹으로 묶되,
+        /// 둘 사이의 겹침만 따로 조절한다.
+        ///
+        /// 셰이딩 값은 공유하고, 아래 세 항목만 두 레이어에 다르게 적용된다.
+        /// 그래서 표정이 겹칠 때 한 곳만 보면 된다.
+        /// </summary>
+        [Serializable]
+        public class ExpressionShading : PartShading
+        {
+            [Space(8)]
+            [Header("레이어 겹침")]
+            [Tooltip("표정 파츠(눈·눈썹·입)를 얼굴보다 앞으로 당긴다.\n\n" +
+                     "표정 파츠는 얼굴 표면에 얹힌 평면이라 깊이가 거의 같다.\n" +
+                     "그대로 두면 Z-파이팅으로 지글거리거나 얼굴에 파묻힌다.\n" +
+                     "깊이만 바꾸므로 옆에서 봐도 얼굴에서 떠 보이지 않는다.\n\n" +
+                     "겹치면 올리고, 옆에서 볼 때 얼굴을 뚫고 나오면 내린다. 0.004~0.008이 보통.")]
+            [Range(0f, 0.02f)] public float 표정_띄우기 = 0.004f;
+
+            [Tooltip("얼굴 아웃라인 헐을 뒤로 민다.\n\n" +
+                     "아웃라인은 얼굴 메시를 바깥으로 부풀리기 때문에\n" +
+                     "그 위에 얹힌 표정 파츠를 덮어버린다.\n" +
+                     "눈이 흐릿하게 가려지면 이 값을 올린다.")]
+            [Range(0f, 0.02f)] public float 얼굴아웃라인_밀기 = 0.006f;
+
+            [Tooltip("표정 파츠에는 아웃라인을 그리지 않는다.\n\n" +
+                     "눈 텍스처에 이미 선이 그려져 있고, 얼굴 위에 얹힌 평면이라\n" +
+                     "인버티드 헐 아웃라인이 지저분하게 튄다. 켜두는 것을 권장.")]
+            public bool 표정_아웃라인끄기 = true;
+
+            [Space(4)]
+            [Tooltip("표정 파츠를 투명 데칼로 그린다. ★ 겹침의 근본 해결책 ★\n\n" +
+                     "이 모델의 표정 파츠(눈·눈썹·볼 붉힘·눈물·세로줄)는 얼굴 표면과\n" +
+                     "같은 평면에 놓인 데칼이라, 불투명으로 그리면 깊이 경쟁에서 Z-파이팅이 난다.\n" +
+                     "원본은 투명 오버레이로 불투명을 다 그린 뒤 덧그리는 방식이었다.\n\n" +
+                     "켜면 깊이 경쟁 자체가 사라지므로 '표정_띄우기'가 불필요해진다.\n" +
+                     "끄면 예전처럼 불투명 + 깊이 오프셋으로 동작한다.")]
+            public bool 표정_투명데칼 = true;
         }
 
         // ────────────────────────────────────────────────────────────
         [Header("부위별 셰이딩")]
-        [Tooltip("얼굴 피부. Face_D 텍스처를 쓰는 머티리얼 (Face_Mouth)")]
-        public PartShading 얼굴 = new PartShading
+        [Tooltip("얼굴 전체 — 피부(Face_D)와 표정 파츠(Morph_parts_D)를 함께 관리한다.\n\n" +
+                 "셰이딩 값은 두 레이어가 공유하고, 겹침만 아래 '레이어 겹침'에서 따로 잡는다.\n" +
+                 "표정이 겹치거나 지글거릴 때 이 그룹 하나만 보면 된다.")]
+        public ExpressionShading 표정 = new ExpressionShading
         {
             명암평탄화 = 0.80f, 그림자_임계값 = 0.52f, 그림자_부드러움 = 0.10f,
             그림자색 = new Color(0.93f, 0.84f, 0.85f),
             하이라이트 = 0.02f, 림라이트 = 0.10f, 아웃라인두께 = 0.9f,
             환경광영향 = 0.15f, 그림자받기 = 0.35f,
+            표정_띄우기 = 0.004f,
+            얼굴아웃라인_밀기 = 0.006f,
+            표정_아웃라인끄기 = true,
         };
 
-        [Tooltip("눈·눈썹·입 파츠. Morph_parts_D 텍스처를 쓰는 머티리얼 (Morph_parts)\n\n" +
-                 "눈은 조명을 받으면 안 된다. 어두워지는 순간 캐릭터가 죽은 눈이 된다.\n" +
-                 "명암평탄화 1.0 + 환경광영향 0 + 그림자받기 0이면 텍스처 색이 그대로 나온다.\n" +
-                 "아웃라인은 0을 권장 — 눈 텍스처에 이미 선이 그려져 있고,\n" +
-                 "얼굴 위에 얹힌 평면 지오메트리라 인버티드 헐이 지저분해진다.")]
-        public PartShading 눈 = new PartShading
+        [Tooltip("볼 붉힘(照れ) 전용 머티리얼.\n\n" +
+                 "이 모델은 슬롯 1(눈)과 슬롯 7(볼 붉힘)이 원래 같은 머티리얼을 공유해서\n" +
+                 "따로 조절할 수 없었다. 'Tools ▸ Toon ▸ Split Duplicate Materials'로\n" +
+                 "슬롯 7을 복제해 분리한 뒤, 그 머티리얼을 여기 넣으면 아래 값이 적용된다.\n\n" +
+                 "비워두면 볼도 표정 그룹 값을 그대로 따른다.")]
+        public Material 볼붉힘_머티리얼;
+
+        [Tooltip("볼 붉힘만의 셰이딩. '볼붉힘_머티리얼'이 지정됐을 때만 쓰인다.\n\n" +
+                 "볼은 눈보다 붉기를 낮추거나, 얼굴 조명을 조금 받게 두면 자연스럽다.")]
+        public ExpressionShading 볼_붉힘 = new ExpressionShading
         {
-            명암평탄화 = 1.0f,          // 완전 평탄 = 사실상 무조명
-            그림자_임계값 = 0.5f,
-            그림자_부드러움 = 0.05f,
-            그림자색 = new Color(1f, 1f, 1f),   // 그림자에서도 색이 죽지 않게
-            하이라이트 = 0f,
-            림라이트 = 0f,
-            아웃라인두께 = 0f,
-            환경광영향 = 0f,
-            그림자받기 = 0f,
+            명암평탄화 = 0.85f, 그림자_임계값 = 0.52f, 그림자_부드러움 = 0.12f,
+            그림자색 = new Color(0.96f, 0.88f, 0.89f),
+            하이라이트 = 0f, 림라이트 = 0f, 아웃라인두께 = 0f,
+            환경광영향 = 0.10f, 그림자받기 = 0.20f,
+            표정_띄우기 = 0f,
+            얼굴아웃라인_밀기 = 0f,
+            표정_아웃라인끄기 = true,
+            표정_투명데칼 = true,
         };
 
         [Tooltip("Hair_D 텍스처를 쓰는 머티리얼 + Feather")]
@@ -232,11 +281,49 @@ namespace VRProject.Character
             m.SetColor("_ShadowTint", p.그림자색);
             m.SetFloat("_SpecIntensity", p.하이라이트);
             m.SetFloat("_RimIntensity", p.림라이트);
-            m.SetFloat("_OutlineWidth", p.아웃라인두께);
             m.SetFloat("_EnvironmentInfluence", p.환경광영향);
             m.SetFloat("_ReceiveShadowStrength", p.그림자받기);
 
-            bool outline = p.아웃라인두께 > 0f;
+            float outlineWidth = p.아웃라인두께;
+            float zOffset = 0f;
+            float outlineZOffset = 0f;
+
+            // 표정 그룹만 두 레이어를 다르게 처리한다.
+            // 같은 값을 주면 둘이 함께 움직여 겹침이 그대로 남는다.
+            if (p is ExpressionShading exp)
+            {
+                if (IsExpressionLayer(m))
+                {
+                    if (exp.표정_투명데칼)
+                    {
+                        // 깊이 경쟁에서 빼낸다. 오프셋으로 이기려 들 필요가 없어진다.
+                        SetDecalMode(m);
+                    }
+                    else
+                    {
+                        SetOpaqueMode(m);
+                        zOffset = exp.표정_띄우기;   // 불투명일 때만 의미가 있다
+                    }
+
+                    if (exp.표정_아웃라인끄기) outlineWidth = 0f;
+                }
+                else
+                {
+                    // 얼굴 피부: 아웃라인 헐만 뒤로 밀어 표정을 덮지 않게 한다.
+                    SetOpaqueMode(m);
+                    outlineZOffset = exp.얼굴아웃라인_밀기;
+                }
+            }
+            else
+            {
+                SetOpaqueMode(m);
+            }
+
+            m.SetFloat("_ZOffset", zOffset);
+            m.SetFloat("_OutlineZOffset", outlineZOffset);
+            m.SetFloat("_OutlineWidth", outlineWidth);
+
+            bool outline = outlineWidth > 0f;
             m.SetFloat("_OutlineEnabled", outline ? 1f : 0f);
             SetKeyword(m, "_OUTLINE_ON", outline);
 
@@ -251,11 +338,58 @@ namespace VRProject.Character
         }
 
         /// <summary>
+        /// 투명 데칼 모드. 불투명을 전부 그린 뒤 알파 블렌딩으로 덧그린다.
+        /// 깊이를 쓰지 않으므로 얼굴과 같은 평면에 있어도 Z-파이팅이 없다.
+        /// </summary>
+        private static void SetDecalMode(Material m)
+        {
+            m.SetFloat("_Surface", 1f);
+            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            m.SetFloat("_ZWrite", 0f);
+            m.SetFloat("_ZOffset", 0f);
+
+            // 알파 블렌딩이 처리하므로 클립은 끈다. 켜두면 경계가 계단처럼 딱딱해진다.
+            m.SetFloat("_AlphaClip", 0f);
+            m.DisableKeyword("_ALPHATEST_ON");
+
+            // URP Lit 시절 잔재. 이 셰이더는 읽지 않지만 남아 있으면 혼란스럽다.
+            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+
+            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+
+            // 데칼이 그림자를 드리우면 얼굴에 눈 모양 그림자가 생긴다.
+            m.SetShaderPassEnabled("ShadowCaster", false);
+        }
+
+        /// <summary>불투명 모드. 알파 클립 여부는 머티리얼이 가진 값을 그대로 존중한다.</summary>
+        private static void SetOpaqueMode(Material m)
+        {
+            m.SetFloat("_Surface", 0f);
+            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
+            m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.Zero);
+            m.SetFloat("_ZWrite", 1f);
+            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+
+            // URP Lit에서 넘어올 때 _AlphaClip 값은 따라오지만 키워드가 빠질 수 있다.
+            // 그러면 머리카락·헤일로의 투명 부분이 통째로 불투명하게 나온다.
+            bool clip = m.HasProperty("_AlphaClip") && m.GetFloat("_AlphaClip") > 0.5f;
+            SetKeyword(m, "_ALPHATEST_ON", clip);
+
+            m.renderQueue = -1;   // 셰이더 기본 큐(Geometry)로 되돌린다
+            m.SetShaderPassEnabled("ShadowCaster", true);
+        }
+
+        /// <summary>
         /// 부위 판별. Aru_Real2는 머티리얼 이름이 부위와 안 맞아서
         /// (Face_Mouth, Horn_Meltal, High_heels…) 텍스처 이름을 1차 기준으로 쓴다.
         /// </summary>
         private PartShading PickPart(Material m)
         {
+            // 볼 붉힘은 머티리얼을 직접 지정받는다. 분리 후에도 이름이 원본과 비슷해서
+            // 문자열로 구분하려 들면 눈과 헷갈린다.
+            if (볼붉힘_머티리얼 != null && m == 볼붉힘_머티리얼) return 볼_붉힘;
+
             Texture tex = m.HasProperty("_BaseMap") ? m.GetTexture("_BaseMap") : null;
             if (tex != null)
             {
@@ -269,15 +403,8 @@ namespace VRProject.Character
         {
             string n = raw.ToLowerInvariant();
 
-            // 눈을 얼굴보다 먼저 본다. Morph_parts가 눈·눈썹·입 파츠다.
-            if (n.Contains("morph") || n.Contains("eye") || n.Contains("iris") ||
-                n.Contains("pupil") || n.Contains("hitomi") || n.Contains("brow") ||
-                n.Contains("lash") || n.Contains("目"))
-                return 눈;
-
-            // Face_Mouth는 얼굴 피부다. 위에서 눈이 걸러진 뒤에 잡힌다.
-            if (n.Contains("face") || n.Contains("mouth") || n.Contains("顔"))
-                return 얼굴;
+            // 얼굴 피부(Face_Mouth)와 표정 파츠(Morph_parts)를 한 그룹으로 받는다.
+            if (IsFaceRegion(n)) return 표정;
 
             if (n.Contains("hair") || n.Contains("feather"))
                 return 머리카락;
@@ -292,6 +419,32 @@ namespace VRProject.Character
                 return 의상_피부;
 
             return null;
+        }
+
+        /// <summary>얼굴 영역(피부 + 표정 파츠)인지.</summary>
+        private static bool IsFaceRegion(string n)
+        {
+            return n.Contains("face") || n.Contains("mouth") || n.Contains("顔") ||
+                   IsExpressionLayer(n);
+        }
+
+        /// <summary>
+        /// 얼굴 위에 얹힌 표정 파츠(눈·눈썹·입)인지.
+        /// 얼굴 피부와 구분해야 둘 사이의 겹침을 잡을 수 있다.
+        /// </summary>
+        private static bool IsExpressionLayer(string n)
+        {
+            return n.Contains("morph") || n.Contains("eye") || n.Contains("iris") ||
+                   n.Contains("pupil") || n.Contains("hitomi") || n.Contains("brow") ||
+                   n.Contains("lash") || n.Contains("目");
+        }
+
+        /// <summary>머티리얼이 표정 파츠 레이어인지. 텍스처 이름을 우선한다.</summary>
+        private static bool IsExpressionLayer(Material m)
+        {
+            Texture tex = m.HasProperty("_BaseMap") ? m.GetTexture("_BaseMap") : null;
+            if (tex != null && IsExpressionLayer(tex.name.ToLowerInvariant())) return true;
+            return IsExpressionLayer(m.name.ToLowerInvariant());
         }
 
         // ── 광원 방향 ───────────────────────────────────────────────
