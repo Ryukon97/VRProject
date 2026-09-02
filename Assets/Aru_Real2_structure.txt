@@ -1,0 +1,188 @@
+﻿╔══ Aru_Real2 구조 ══
+
+── 렌더러 1개 ──
+  ▸ Body  [SkinnedMeshRenderer]
+      Reflection Probes:   LightProbe: BlendProbes  ReflProbe: BlendProbes
+      [0] face_d                   셰이더: VRProject/ToonLit                      텍스처: Face_D
+      [1] Morph_Parts_d            셰이더: VRProject/ToonLit                      텍스처: Morph_parts_D
+      [2] Hair_d                   셰이더: VRProject/ToonLit                      텍스처: Hair_D
+      [3] Hand                     셰이더: VRProject/ToonLit                      텍스처: -
+      [4] Body_ToonD               셰이더: VRProject/ToonLit                      텍스처: Body_D
+      [5] Caot_D                   셰이더: VRProject/ToonLit                      텍스처: Coat_D
+      [6] Halo_d                   셰이더: VRProject/ToonLit                      텍스처: Halo_D
+      [7] Morph_Parts_d            셰이더: VRProject/ToonLit                      텍스처: Morph_parts_D
+
+── 본 116개 (루트: Hips) ──
+  ▸ 시선 추적용 후보:
+      ✓ Hips   (경로: Armature/Hips)
+      ✓ Spine   (경로: Armature/Hips/Spine)
+      ✓ Chest   (경로: Armature/Hips/Spine/Chest)
+      ✓ Neck   (경로: Armature/Hips/Spine/Chest/Neck)
+      ✓ Head   (경로: Armature/Hips/Spine/Chest/Neck/Head)
+      ✓ Eye_L   (경로: Armature/Hips/Spine/Chest/Neck/Head/Eye_L)
+      ✓ Eye_R   (경로: Armature/Hips/Spine/Chest/Neck/Head/Eye_R)
+  ▸ 전체 목록:
+      Hips
+      Left leg
+      Left knee
+      Left ankle
+      Left toe
+      Skirt_L
+      Right leg
+      Right knee
+      Right ankle
+      Right toe
+      Skirt_R
+      Spine
+      Chest
+      Neck
+      Head
+      Halo_1
+      Hair_T_0_0
+      Hair_T_0_1
+      Hair_F_0_0
+      Hair_F_R_0
+      Hair_F_R_1
+      Hair_F_R_2
+      Hair_F_R_3
+      Hair_L_0_0
+      Hair_L_0_1
+      Hair_L_0_2
+      Hair_L_0_3
+      Hair_R_0_0
+      Hair_R_0_1
+      Hair_R_0_2
+      Hair_R_0_3
+      Hair_B_0_0
+      Hair_B_0_1
+      Eye_L
+      Eye_R
+      Left shoulder
+      zArmTwist_L
+      zHandTwist_L
+      Left arm
+      Left elbow
+      Left wrist
+      Thumb0_L
+      Thumb1_L
+      Thumb2_L
+      IndexFinger1_L
+      IndexFinger2_L
+      IndexFinger3_L
+      MiddleFinger1_L
+      MiddleFinger2_L
+      MiddleFinger3_L
+      RingFinger1_L
+      RingFinger2_L
+      RingFinger3_L
+      LittleFinger1_L
+      LittleFinger2_L
+      LittleFinger3_L
+      Right shoulder
+      zArmTwist_R
+      zHandTwist_R
+      Right arm
+      Right elbow
+      Right wrist
+      Thumb0_R
+      Thumb1_R
+      Thumb2_R
+      IndexFinger1_R
+      IndexFinger2_R
+      IndexFinger3_R
+      MiddleFinger1_R
+      MiddleFinger2_R
+      MiddleFinger3_R
+      RingFinger1_R
+      RingFinger2_R
+      RingFinger3_R
+      LittleFinger1_R
+      LittleFinger2_R
+      LittleFinger3_R
+      Tbow_L_0_0
+      Tbow_L_1_0
+      Tbow_R_0_0
+      Tbow_R_1_0
+      Breast_L
+      Breast_R
+      Coat_Center
+      Coat_R_2_1
+      Coat_R_2_2
+      Coat_R_2_3
+      Coat_R_2_4
+      Coat_R_1_1
+      Coat_R_1_2
+      Coat_R_1_3
+      Coat_R_1_4
+      ACoat_R_0
+      Coat_R_0_1
+      Coat_R_0_2
+      Coat_R_0_3
+      Coat_R_0_4
+      Coat_0_1
+      Coat_0_2
+      Coat_0_3
+      Coat_0_4
+      Coat_L_0_1
+      Coat_L_0_2
+      Coat_L_0_3
+      Coat_L_0_4
+      Coat_L_1_1
+      Coat_L_1_2
+      Coat_L_1_3
+      Coat_L_1_4
+      ACoat_L_0
+      Coat_L_2_1
+      Coat_L_2_2
+      Coat_L_2_3
+      Coat_L_2_4
+      Collar_L
+      Collar_R
+
+── 블렌드셰이프: Body (46개) ──
+      [0] まばたき
+      [1] ウィンク２
+      [2] ウィンク２右
+      [3] 笑い
+      [4] ウィンク
+      [5] ウィンク右
+      [6] びっくり
+      [7] 嬉しい
+      [8] 睨み
+      [9] 上
+      [10] 下
+      [11] 真面目
+      [12] 真面目2
+      [13] 怒り
+      [14] にこり
+      [15] 困る
+      [16] 困る2
+      [17] あ
+      [18] い
+      [19] う
+      [20] え
+      [21] お
+      [22] にやり
+      [23] にやり2
+      [24] 口上
+      [25] 口下
+      [26] ワ大
+      [27] むっ
+      [28] ワ-
+      [29] ん
+      [30] ︿
+      [31] む
+      [32] ヒイィィィ
+      [33] 笑い口
+      [34] 涙
+      [35] 汗
+      [36] うつ線
+      [37] 顔かげ
+      [38] 目暗
+      [39] 目小
+      [40] 目_OFF
+      [41] ハイライト_ON
+      [42] 調整コート2
+      [43] 調整_目1
+      [44] 調整_目2
+      [45] 調整_髪
