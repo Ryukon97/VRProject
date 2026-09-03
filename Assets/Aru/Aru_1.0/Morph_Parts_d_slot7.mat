@@ -134,7 +134,7 @@ Material:
     - _SecondStep: 0
     - _ShadowFeather: 0.12
     - _ShadowThreshold: 0.52
-    - _ShadowThreshold2: 0.28
+    - _ShadowThreshold2: 0.283
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecFeather: 0.08

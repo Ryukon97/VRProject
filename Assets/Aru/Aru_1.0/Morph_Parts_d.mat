@@ -34,11 +34,13 @@ Material:
     - _Flatten: 0.178
     - _OutlineTintByAlbedo: 0.4
     - _ReceiveShadowStrength: 0.365
+    - _RimIntensity: 0
+    - _SecondStep: 0
     - _ShadowFeather: 0.001
     - _ShadowThreshold: 0.404
     - _ShadowThreshold2: 0.016
     m_Colors:
-    - _OutlineColor: {r: 0.7169812, g: 0.21306516, b: 0.2837904, a: 1}
+    - _OutlineColor: {r: 0.41509432, g: 0.08419366, b: 0.13036586, a: 1}
     - _ShadowTint: {r: 0.93, g: 0.84, b: 0.85, a: 1}
     - _ShadowTint2: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

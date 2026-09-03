@@ -102,7 +102,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AdditionalLightIntensity: 1
     - _AlphaClip: 1
-    - _AlphaToMask: 0
+    - _AlphaToMask: 1
     - _AmbientFlatten: 0.6
     - _AmbientStrength: 1
     - _Blend: 0
@@ -117,7 +117,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EnvironmentInfluence: 0.055
+    - _EnvironmentInfluence: 0.126
     - _EnvironmentReflections: 1
     - _Flatten: 0
     - _GlossMapScale: 0
@@ -127,8 +127,8 @@ Material:
     - _OcclusionStrength: 1
     - _OutlineEnabled: 1
     - _OutlineMaxWidth: 0.006
-    - _OutlineTintByAlbedo: 0.407
-    - _OutlineWidth: 3.67
+    - _OutlineTintByAlbedo: 0.415
+    - _OutlineWidth: 0.71
     - _OutlineZOffset: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
@@ -140,7 +140,7 @@ Material:
     - _SecondStep: 1
     - _ShadowFeather: 0.001
     - _ShadowThreshold: 0.48
-    - _ShadowThreshold2: 0.36
+    - _ShadowThreshold2: 0.381
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecFeather: 0.08
@@ -160,7 +160,7 @@ Material:
     - _CharacterLightDir: {r: 0.35, g: 0.45, b: -0.82, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _OutlineColor: {r: 0.8113208, g: 0.44010326, b: 0.6043589, a: 1}
+    - _OutlineColor: {r: 0.9245283, g: 0.40557134, b: 0.40557134, a: 1}
     - _RimColor: {r: 0.78, g: 0.85, b: 1, a: 1}
     - _ShadowTint: {r: 1, g: 0.8537736, b: 0.86108494, a: 1}
     - _ShadowTint2: {r: 0.9339623, g: 0.5275388, b: 0.5066305, a: 1}

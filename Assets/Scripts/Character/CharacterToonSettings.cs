@@ -134,6 +134,13 @@ namespace VRProject.Character
         }
 
         // ────────────────────────────────────────────────────────────
+        [Header("비교용 — 비포/애프터 촬영")]
+        [Tooltip("켜면 이 캐릭터의 모든 머티리얼을 URP Lit으로 되돌린다.\n" +
+                 "툰 적용 전 상태로 돌아가므로 비교 스크린샷을 찍을 수 있다.\n\n" +
+                 "끄면 다시 ToonLit으로 돌아오고 아래 값들이 재적용된다.\n" +
+                 "텍스처와 투명 설정은 왕복해도 유지된다.")]
+        public bool 툰_끄기 = false;
+
         [Header("부위별 셰이딩")]
         [Tooltip("얼굴 전체 — 피부(Face_D)와 표정 파츠(Morph_parts_D)를 함께 관리한다.\n\n" +
                  "셰이딩 값은 두 레이어가 공유하고, 겹침만 아래 '레이어 겹침'에서 따로 잡는다.\n" +
@@ -307,6 +314,21 @@ namespace VRProject.Character
         public void ApplyShading()
         {
             if (렌더러 == null) return;
+
+            // 비교용: 전부 URP Lit으로 되돌리고 툰 값은 쓰지 않는다.
+            if (툰_끄기)
+            {
+                foreach (Renderer r in 렌더러)
+                {
+                    if (r == null) continue;
+                    foreach (Material m in r.sharedMaterials)
+                        VRProject.ToonMaterialUtil.ToUrpLit(m);
+
+                    r.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.BlendProbes;
+                }
+                return;
+            }
+
             Shader toon = Shader.Find("VRProject/ToonLit");
 
             foreach (Renderer r in 렌더러)
@@ -603,6 +625,7 @@ namespace VRProject.Character
 
         private void ApplyLight()
         {
+            if (툰_끄기) return;   // URP Lit은 캐릭터 전용 광원을 읽지 않는다
             if (렌더러 == null || 렌더러.Length == 0) return;
             block ??= new MaterialPropertyBlock();
 

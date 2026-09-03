@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -20,6 +22,48 @@ namespace VRProject.Environment
     [AddComponentMenu("VRProject/Environment Toon Settings")]
     public class EnvironmentToonSettings : MonoBehaviour
     {
+        // ── 비교용 ──────────────────────────────────────────────────
+        [Header("비교용 — 비포/애프터 촬영")]
+        [Tooltip("켜면 배경 머티리얼을 URP Lit으로 되돌리고, 아래 설정을 적용하지 않는다.\n" +
+                 "툰 적용 전 상태로 돌아가므로 비교 스크린샷을 찍을 수 있다.")]
+        public bool 툰_끄기 = false;
+
+        [Tooltip("툰_끄기와 함께 조명도 원래대로 되돌린다.\n\n" +
+                 "이 컴포넌트가 처음 적용될 때 저장해둔 값을 쓴다 —\n" +
+                 "꺼둔 디렉셔널 라이트, 앰비언트, 안개, 포스트 볼륨.\n" +
+                 "저장 전이라면 되돌릴 것이 없어 아무것도 하지 않는다.")]
+        public bool 조명도_되돌리기 = true;
+
+        [Tooltip("되돌릴 때 저장된 라이트 색·강도·각도를 쓴다.\n\n" +
+                 "기본은 꺼둔다. 저장이 툰 적용 이후에 일어났다면 '원본'이 이미\n" +
+                 "툰 상태라, 그걸 되돌려봐야 다시 어두워지기 때문이다.\n" +
+                 "끄면 라이트를 전부 켜고 그림자 강도만 1.0으로 되돌린다.")]
+        public bool 저장된_라이트값_사용 = false;
+
+        // 최초 적용 직전의 상태. 인스펙터에는 숨긴다.
+        [Serializable]
+        private class LightState
+        {
+            public Light light;
+            public bool enabled;
+            public Color color;
+            public float intensity;
+            public Vector3 euler;
+            public float shadowStrength;
+            public LightShadows shadows;
+        }
+
+        [SerializeField, HideInInspector] private bool 원본캡처됨;
+        [SerializeField, HideInInspector] private List<LightState> 원본라이트 = new List<LightState>();
+        [SerializeField, HideInInspector] private AmbientMode 원본앰비언트모드;
+        [SerializeField, HideInInspector] private Color 원본하늘색, 원본중간색, 원본바닥색;
+        [SerializeField, HideInInspector] private float 원본앰비언트세기, 원본반사강도;
+        [SerializeField, HideInInspector] private DefaultReflectionMode 원본반사모드;
+        [SerializeField, HideInInspector] private bool 원본안개;
+        [SerializeField, HideInInspector] private Color 원본안개색;
+        [SerializeField, HideInInspector] private FogMode 원본안개모드;
+        [SerializeField, HideInInspector] private float 원본안개시작, 원본안개끝;
+
         // ── 배경 셰이딩 ─────────────────────────────────────────────
         [Header("배경 셰이딩")]
         [Tooltip("배경 머티리얼에도 값을 적용할지.")]
@@ -150,11 +194,197 @@ namespace VRProject.Environment
         [ContextMenu("전체 다시 적용")]
         public void ApplyAll()
         {
+            if (툰_끄기)
+            {
+                RevertShading();
+                if (조명도_되돌리기) RevertLighting();
+                return;
+            }
+
+            CaptureOriginal();
+
             ApplyShading();
             ApplyLight();
             ApplyAmbient();
             ApplyFog();
             ApplyPost();
+        }
+
+        /// <summary>
+        /// 이 컴포넌트가 조명을 건드리기 전의 상태를 한 번만 저장한다.
+        /// 저장이 없으면 비교 촬영 후 원래대로 못 돌아간다.
+        /// </summary>
+        private void CaptureOriginal()
+        {
+            if (원본캡처됨) return;
+
+            원본라이트 = new List<LightState>();
+            foreach (Light l in FindObjectsByType<Light>(FindObjectsSortMode.None))
+            {
+                if (l.type != LightType.Directional) continue;
+                원본라이트.Add(new LightState
+                {
+                    light = l,
+                    enabled = l.enabled,
+                    color = l.color,
+                    intensity = l.intensity,
+                    euler = l.transform.rotation.eulerAngles,
+                    shadowStrength = l.shadowStrength,
+                    shadows = l.shadows,
+                });
+            }
+
+            원본앰비언트모드 = RenderSettings.ambientMode;
+            원본하늘색 = RenderSettings.ambientSkyColor;
+            원본중간색 = RenderSettings.ambientEquatorColor;
+            원본바닥색 = RenderSettings.ambientGroundColor;
+            원본앰비언트세기 = RenderSettings.ambientIntensity;
+            원본반사모드 = RenderSettings.defaultReflectionMode;
+            원본반사강도 = RenderSettings.reflectionIntensity;
+
+            원본안개 = RenderSettings.fog;
+            원본안개색 = RenderSettings.fogColor;
+            원본안개모드 = RenderSettings.fogMode;
+            원본안개시작 = RenderSettings.fogStartDistance;
+            원본안개끝 = RenderSettings.fogEndDistance;
+
+            원본캡처됨 = true;
+        }
+
+        /// <summary>배경 머티리얼을 URP Lit으로 되돌린다.</summary>
+        private void RevertShading()
+        {
+            if (cached == null || cached.Length == 0)
+                cached = GetComponentsInChildren<Renderer>(true);
+
+            foreach (Renderer r in cached)
+            {
+                if (r == null) continue;
+                foreach (Material m in r.sharedMaterials)
+                    VRProject.ToonMaterialUtil.ToUrpLit(m);
+
+                r.reflectionProbeUsage = ReflectionProbeUsage.BlendProbes;
+            }
+        }
+
+        /// <summary>
+        /// 지금 실제로 적용돼 있는 렌더링 상태를 출력한다.
+        /// 되돌리기가 먹었는지 눈으로 추측하지 말고 이걸로 확인한다.
+        /// </summary>
+        [ContextMenu("현재 렌더링 상태 출력")]
+        public void LogRenderState()
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"[EnvironmentToonSettings] 현재 렌더링 상태  (툰_끄기={툰_끄기}, 원본캡처됨={원본캡처됨})");
+
+            sb.AppendLine("── 디렉셔널 라이트 ──");
+            foreach (Light l in FindObjectsByType<Light>(FindObjectsSortMode.None))
+            {
+                if (l.type != LightType.Directional) continue;
+                sb.AppendLine($"   {l.name,-26} enabled={l.enabled,-5} 강도={l.intensity:F2} " +
+                              $"그림자={l.shadows}({l.shadowStrength:F2}) 색={ColorUtility.ToHtmlStringRGB(l.color)}");
+            }
+
+            sb.AppendLine("── 환경광 ──");
+            sb.AppendLine($"   Ambient  모드={RenderSettings.ambientMode} 세기={RenderSettings.ambientIntensity:F2}");
+            sb.AppendLine($"   Reflect  모드={RenderSettings.defaultReflectionMode} " +
+                          $"강도={RenderSettings.reflectionIntensity:F2} " +
+                          $"커스텀큐브={(RenderSettings.customReflectionTexture != null ? "있음" : "없음(검정)")}");
+            sb.AppendLine($"   Skybox   {(RenderSettings.skybox != null ? RenderSettings.skybox.name : "없음")}");
+            sb.AppendLine($"   Fog      {RenderSettings.fog} {RenderSettings.fogMode} " +
+                          $"{RenderSettings.fogStartDistance:F0}~{RenderSettings.fogEndDistance:F0}");
+
+            Volume v = FindFirstObjectByType<Volume>();
+            sb.AppendLine($"── 포스트 ──\n   Volume {(v != null ? $"{v.name} enabled={v.enabled}" : "없음")}");
+
+            sb.AppendLine("── 씬의 모든 렌더러 셰이더 ──");
+            foreach (Renderer r in FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            {
+                if (r is ParticleSystemRenderer) continue;
+                Material[] mats = r.sharedMaterials;
+                var names = new HashSet<string>();
+                foreach (Material m in mats)
+                    if (m != null && m.shader != null) names.Add(m.shader.name);
+                if (names.Count == 0) continue;
+
+                sb.AppendLine($"   {r.name,-24} ReflProbe={r.reflectionProbeUsage,-12} " +
+                              $"LightProbe={r.lightProbeUsage,-12} 셰이더={string.Join(", ", names)}");
+            }
+
+            Debug.Log(sb.ToString(), this);
+        }
+
+        /// <summary>
+        /// 조명을 되돌린다.
+        ///
+        /// 저장된 원본이 있으면 그것으로, 없으면 Unity 기본값으로 되돌린다.
+        /// 기본값 복구가 중요한 이유: URP Lit은 PBR이라 환경광과 리플렉션에
+        /// 크게 의존한다. 툰용으로 리플렉션을 0으로 내려둔 채 URP Lit으로 돌아가면
+        /// 표면이 검은 큐브맵을 반사해서 어둡고 얼룩덜룩해진다.
+        /// </summary>
+        private void RevertLighting()
+        {
+            // 캡처를 믿지 않는다.
+            //
+            // 캡처는 이 컴포넌트가 처음 적용되기 직전에 일어나는데, 그 시점에 이미
+            // 툰 조명이 손으로 적용돼 있었다면 "원본"으로 툰 상태가 저장된다.
+            // 그걸 되돌려봐야 다시 어두워질 뿐이다.
+            //
+            // 그래서 PBR이 정상으로 보이는 기준값을 확정적으로 넣는다.
+            // 원본과 완전히 같지는 않지만 비교 촬영에는 이쪽이 맞다.
+
+            foreach (Light l in FindObjectsByType<Light>(FindObjectsSortMode.None))
+            {
+                if (l.type != LightType.Directional) continue;
+                l.enabled = true;
+
+                if (저장된_라이트값_사용 && 원본캡처됨)
+                {
+                    LightState s = 원본라이트.Find(x => x != null && x.light == l);
+                    if (s != null)
+                    {
+                        l.color = s.color;
+                        l.intensity = s.intensity;
+                        l.shadows = s.shadows;
+                        l.shadowStrength = s.shadowStrength;
+                        l.transform.rotation = Quaternion.Euler(s.euler);
+                        continue;
+                    }
+                }
+
+                // 그림자를 제 강도로 되돌린다. 툰용으로 0.35까지 내려놨었다.
+                l.shadowStrength = 1f;
+            }
+
+            // 스카이박스 기반 환경광. Gradient + 낮은 세기는 PBR을 굶긴다.
+            RenderSettings.ambientMode = AmbientMode.Skybox;
+            RenderSettings.ambientIntensity = 1f;
+
+            // 이게 낮으면 스무스한 표면이 검은 큐브맵을 반사해
+            // 어둡고 얼룩진 화면이 나온다. 조건 없이 1로 올린다.
+            RenderSettings.defaultReflectionMode = DefaultReflectionMode.Skybox;
+            RenderSettings.customReflectionTexture = null;
+            RenderSettings.reflectionIntensity = 1f;
+
+            RenderSettings.fog = false;
+
+            // 포스트 프로세싱은 볼륨 자체를 끈다. 프로파일 값은 그대로 남긴다.
+            Volume v = FindFirstObjectByType<Volume>();
+            if (v != null) v.enabled = false;
+        }
+
+        /// <summary>
+        /// 잘못 저장된 캡처를 지운다. 다음에 툰을 적용할 때 다시 저장된다.
+        /// 지금 상태가 이미 툰이라면 지워도 툰 상태가 다시 저장될 뿐이니,
+        /// 진짜 원본으로 돌린 다음에 실행해야 의미가 있다.
+        /// </summary>
+        [ContextMenu("원본 캡처 초기화")]
+        public void ClearCapture()
+        {
+            원본캡처됨 = false;
+            원본라이트 = new List<LightState>();
+            Debug.Log("[EnvironmentToonSettings] 원본 캡처를 지웠다. " +
+                      "다음 툰 적용 시점의 상태가 새 원본으로 저장된다.", this);
         }
 
         // ── 셰이딩 ──────────────────────────────────────────────────
@@ -288,11 +518,12 @@ namespace VRProject.Environment
             if (!포스트적용) return;
 
             VolumeProfile profile = 볼륨프로파일;
-            if (profile == null)
-            {
-                Volume v = FindFirstObjectByType<Volume>();
-                if (v != null) profile = v.sharedProfile;
-            }
+            Volume vol = FindFirstObjectByType<Volume>();
+
+            // 비교 촬영 때 껐던 볼륨을 되살린다.
+            if (vol != null && !vol.enabled) vol.enabled = true;
+
+            if (profile == null && vol != null) profile = vol.sharedProfile;
             if (profile == null) return;
 
             // ACES는 대비를 세게 걸어 툰 색을 눌러버린다. Neutral이 맞다.

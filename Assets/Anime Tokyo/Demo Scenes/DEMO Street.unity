@@ -479,7 +479,7 @@ Light:
   serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.79
+  m_Intensity: 1.6
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -488,7 +488,7 @@ Light:
     m_Type: 2
     m_Resolution: 1
     m_CustomResolution: -1
-    m_Strength: 0.5
+    m_Strength: 1
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -541,13 +541,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 745438817}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.14701577, y: 0.6916548, z: -0.14701577, w: -0.6916548}
+  m_LocalRotation: {x: -0.47774264, y: 0.52130795, z: -0.47774264, w: -0.52130795}
   m_LocalPosition: {x: 18.44, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 24, y: 270, z: 0}
+  m_LocalEulerAnglesHint: {x: 85.006, y: 270, z: 0}
 --- !u!4 &1069067833 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -3111763102078412529, guid: 45d76d88530d71b44bacc9040f731362, type: 3}
@@ -575,11 +575,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.08
+      value: 1.15
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -20.017
+      value: -20.019
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.y
@@ -587,7 +587,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.369
+      value: 1.02
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -595,7 +595,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalRotation.y
@@ -603,7 +603,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -740,6 +740,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abef5237e56bf194bab8170667ac3483, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VRProject.Environment.EnvironmentToonSettings
+  "\uD230_\uB044\uAE30": 0
+  "\uC870\uBA85\uB3C4_\uB418\uB3CC\uB9AC\uAE30": 1
+  "\uC800\uC7A5\uB41C_\uB77C\uC774\uD2B8\uAC12_\uC0AC\uC6A9": 0
+  "\uC6D0\uBCF8\uCEA1\uCC98\uB428": 1
+  "\uC6D0\uBCF8\uB77C\uC774\uD2B8":
+  - light: {fileID: 1546541003}
+    enabled: 1
+    color: {r: 1, g: 0.957, b: 0.902, a: 1}
+    intensity: 1.047
+    euler: {x: 24.500004, y: 337.8, z: 0}
+    shadowStrength: 0.36
+    shadows: 2
+  - light: {fileID: 2040041690}
+    enabled: 0
+    color: {r: 1, g: 0.957, b: 0.902, a: 1}
+    intensity: 1
+    euler: {x: 50.00001, y: 325, z: 0.000001328236}
+    shadowStrength: 0.35
+    shadows: 2
+  - light: {fileID: 745438819}
+    enabled: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+    intensity: 0.79
+    euler: {x: 24, y: 270, z: 0}
+    shadowStrength: 0.5
+    shadows: 2
+  "\uC6D0\uBCF8\uC570\uBE44\uC5B8\uD2B8\uBAA8\uB4DC": 1
+  "\uC6D0\uBCF8\uD558\uB298\uC0C9": {r: 0.6, g: 0.68, b: 0.82, a: 1}
+  "\uC6D0\uBCF8\uC911\uAC04\uC0C9": {r: 0.52, g: 0.56, b: 0.65, a: 1}
+  "\uC6D0\uBCF8\uBC14\uB2E5\uC0C9": {r: 0.42, g: 0.43, b: 0.47, a: 1}
+  "\uC6D0\uBCF8\uC570\uBE44\uC5B8\uD2B8\uC138\uAE30": 0.276
+  "\uC6D0\uBCF8\uBC18\uC0AC\uAC15\uB3C4": 0.081
+  "\uC6D0\uBCF8\uBC18\uC0AC\uBAA8\uB4DC": 1
+  "\uC6D0\uBCF8\uC548\uAC1C": 1
+  "\uC6D0\uBCF8\uC548\uAC1C\uC0C9": {r: 0.72, g: 0.82, b: 0.94, a: 1}
+  "\uC6D0\uBCF8\uC548\uAC1C\uBAA8\uB4DC": 1
+  "\uC6D0\uBCF8\uC548\uAC1C\uC2DC\uC791": 8.7
+  "\uC6D0\uBCF8\uC548\uAC1C\uB05D": 263.3
   "\uC170\uC774\uB529\uC801\uC6A9": 1
   "\uC170\uC774\uB354_\uC790\uB3D9\uAD50\uCCB4": 1
   "\uBA85\uC554\uD3C9\uD0C4\uD654": 0.307
@@ -855,6 +893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917fb4b5dd8f6994d89ab4f975c079d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VRProject.Character.CharacterToonSettings
+  "\uD230_\uB044\uAE30": 0
   "\uD45C\uC815":
     "\uC801\uC6A9": 1
     "\uBA85\uC554\uD3C9\uD0C4\uD654": 0.178
@@ -863,8 +902,8 @@ MonoBehaviour:
     "\uADF8\uB9BC\uC790\uC0C9": {r: 0.93, g: 0.84, b: 0.85, a: 1}
     "\uD558\uC774\uB77C\uC774\uD2B8": 0
     "\uB9BC\uB77C\uC774\uD2B8": 0
-    "\uC544\uC6C3\uB77C\uC778\uB450\uAED8": 2.92
-    "\uC544\uC6C3\uB77C\uC778\uC0C9": {r: 0.7169812, g: 0.21306516, b: 0.2837904, a: 1}
+    "\uC544\uC6C3\uB77C\uC778\uB450\uAED8": 1.01
+    "\uC544\uC6C3\uB77C\uC778\uC0C9": {r: 0.41509432, g: 0.08419366, b: 0.13036586, a: 1}
     "\uC544\uC6C3\uB77C\uC778_\uC54C\uBCA0\uB3C4\uD63C\uD569": 0.4
     "\uD658\uACBD\uAD11\uC601\uD5A5": 0
     "\uADF8\uB9BC\uC790\uBC1B\uAE30": 0.365
@@ -892,7 +931,7 @@ MonoBehaviour:
     "\uADF8\uB9BC\uC790\uBC1B\uAE30": 0
     "\uBD88\uD22C\uBA85\uB3C4": 1
     "\uC0BC\uB2E8\uBA85\uC554": 0
-    "\uAE4A\uC740\uADF8\uB9BC\uC790_\uC784\uACC4\uAC12": 0.28
+    "\uAE4A\uC740\uADF8\uB9BC\uC790_\uC784\uACC4\uAC12": 0.283
     "\uAE4A\uC740\uADF8\uB9BC\uC790\uC0C9": {r: 0.55, g: 0.53, b: 0.72, a: 1}
     "\uD45C\uC815_\uB744\uC6B0\uAE30": 0.02
     "\uC5BC\uAD74\uC544\uC6C3\uB77C\uC778_\uBC00\uAE30": 0.02
@@ -906,14 +945,14 @@ MonoBehaviour:
     "\uADF8\uB9BC\uC790\uC0C9": {r: 1, g: 0.8537736, b: 0.86108494, a: 1}
     "\uD558\uC774\uB77C\uC774\uD2B8": 0.331
     "\uB9BC\uB77C\uC774\uD2B8": 0.199
-    "\uC544\uC6C3\uB77C\uC778\uB450\uAED8": 3.67
-    "\uC544\uC6C3\uB77C\uC778\uC0C9": {r: 0.8113208, g: 0.44010326, b: 0.6043589, a: 1}
-    "\uC544\uC6C3\uB77C\uC778_\uC54C\uBCA0\uB3C4\uD63C\uD569": 0.407
-    "\uD658\uACBD\uAD11\uC601\uD5A5": 0.055
+    "\uC544\uC6C3\uB77C\uC778\uB450\uAED8": 0.71
+    "\uC544\uC6C3\uB77C\uC778\uC0C9": {r: 0.9245283, g: 0.40557134, b: 0.40557134, a: 1}
+    "\uC544\uC6C3\uB77C\uC778_\uC54C\uBCA0\uB3C4\uD63C\uD569": 0.415
+    "\uD658\uACBD\uAD11\uC601\uD5A5": 0.126
     "\uADF8\uB9BC\uC790\uBC1B\uAE30": 0.425
     "\uBD88\uD22C\uBA85\uB3C4": 1
     "\uC0BC\uB2E8\uBA85\uC554": 1
-    "\uAE4A\uC740\uADF8\uB9BC\uC790_\uC784\uACC4\uAC12": 0.36
+    "\uAE4A\uC740\uADF8\uB9BC\uC790_\uC784\uACC4\uAC12": 0.381
     "\uAE4A\uC740\uADF8\uB9BC\uC790\uC0C9": {r: 0.9339623, g: 0.5275388, b: 0.5066305, a: 1}
   "\uC758\uC0C1_\uD53C\uBD80":
     "\uC801\uC6A9": 1
@@ -923,7 +962,7 @@ MonoBehaviour:
     "\uADF8\uB9BC\uC790\uC0C9": {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 1}
     "\uD558\uC774\uB77C\uC774\uD2B8": 0.063
     "\uB9BC\uB77C\uC774\uD2B8": 0.108
-    "\uC544\uC6C3\uB77C\uC778\uB450\uAED8": 2.08
+    "\uC544\uC6C3\uB77C\uC778\uB450\uAED8": 0.4
     "\uC544\uC6C3\uB77C\uC778\uC0C9": {r: 0.6367924, g: 0.6545099, b: 1, a: 1}
     "\uC544\uC6C3\uB77C\uC778_\uC54C\uBCA0\uB3C4\uD63C\uD569": 0.213
     "\uD658\uACBD\uAD11\uC601\uD5A5": 0.105
@@ -941,7 +980,7 @@ MonoBehaviour:
     "\uD558\uC774\uB77C\uC774\uD2B8": 1
     "\uB9BC\uB77C\uC774\uD2B8": 0.2
     "\uC544\uC6C3\uB77C\uC778\uB450\uAED8": 2.56
-    "\uC544\uC6C3\uB77C\uC778\uC0C9": {r: 0.48607153, g: 0.35924706, b: 0.6509434, a: 1}
+    "\uC544\uC6C3\uB77C\uC778\uC0C9": {r: 0.3591195, g: 0.23740655, b: 0.5188679, a: 1}
     "\uC544\uC6C3\uB77C\uC778_\uC54C\uBCA0\uB3C4\uD63C\uD569": 0.5
     "\uD658\uACBD\uAD11\uC601\uD5A5": 0
     "\uADF8\uB9BC\uC790\uBC1B\uAE30": 1
@@ -1687,7 +1726,7 @@ Light:
     m_Type: 2
     m_Resolution: 1
     m_CustomResolution: -1
-    m_Strength: 0.35
+    m_Strength: 1
     m_Bias: 0.08
     m_NormalBias: 0.45
     m_NearPlane: 0.2
@@ -1740,13 +1779,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2040041688}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40305823, y: -0.27253202, z: 0.12708378, w: 0.8643611}
+  m_LocalRotation: {x: -0.9582076, y: -0.17895553, z: 0.05930947, w: -0.21516375}
   m_LocalPosition: {x: -500, y: 50, z: -60}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 37.6, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 25.694, y: -177.669, z: -200.626}
 --- !u!1001 &2173402851617162247
 PrefabInstance:
   m_ObjectHideFlags: 0

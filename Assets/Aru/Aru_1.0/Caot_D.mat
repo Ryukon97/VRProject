@@ -159,7 +159,7 @@ Material:
     - _CharacterLightDir: {r: 0.35, g: 0.45, b: -0.82, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _OutlineColor: {r: 0.48607153, g: 0.35924706, b: 0.6509434, a: 1}
+    - _OutlineColor: {r: 0.3591195, g: 0.23740655, b: 0.5188679, a: 1}
     - _RimColor: {r: 0.78, g: 0.85, b: 1, a: 1}
     - _ShadowTint: {r: 0.72, g: 0.7, b: 0.86, a: 1}
     - _ShadowTint2: {r: 0.55, g: 0.53, b: 0.72, a: 1}
