@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace VRProject.Character
@@ -51,6 +52,18 @@ namespace VRProject.Character
             [Tooltip("아웃라인 두께(화면 픽셀 기준). 0이면 아웃라인 없음.")]
             [Range(0f, 8f)] public float 아웃라인두께 = 1.4f;
 
+            [Tooltip("아웃라인 색.\n\n" +
+                     "검정은 부위가 서로 다른 색일 때 이물감이 든다.\n" +
+                     "베이스 색을 어둡게 하고 채도를 살린 색이 애니메이션 관례에 맞다.\n" +
+                     "예: 분홍 머리 → 진한 자주, 흰 셔츠 → 진한 남보라")]
+            public Color 아웃라인색 = new Color(0.16f, 0.17f, 0.32f);
+
+            [Tooltip("아웃라인 색을 베이스 텍스처 쪽으로 당기는 정도.\n\n" +
+                     "0이면 위 색이 그대로 나온다.\n" +
+                     "올릴수록 텍스처 색에 물들어 부위마다 선 색이 자연스럽게 갈린다.\n" +
+                     "한 머티리얼 안에 색이 여러 개일 때 특히 유용하다.")]
+            [Range(0f, 1f)] public float 아웃라인_알베도혼합 = 0.35f;
+
             [Tooltip("환경광(스카이박스/SH)이 미치는 영향.\n" +
                      "리얼한 느낌의 상당 부분이 여기서 온다. 툰으로 갈수록 낮춘다.")]
             [Range(0f, 1f)] public float 환경광영향 = 0.2f;
@@ -58,6 +71,26 @@ namespace VRProject.Character
             [Tooltip("씬의 드리운 그림자를 받는 정도. 낮추면 그림자가 옅어진다.")]
             [Range(0f, 1f)] public float 그림자받기 = 0.5f;
 
+            [Tooltip("데칼 불투명도. '표정_투명데칼'이 켜진 머티리얼에서만 효과가 있다.\n\n" +
+                     "얼굴그늘(顔かげ)·눈물·세로줄이 너무 진하면 여기를 내린다.\n" +
+                     "단, 같은 머티리얼을 쓰는 파츠가 함께 흐려진다.")]
+            [Range(0f, 1f)] public float 불투명도 = 1f;
+
+            [Space(6)]
+            [Header("그림자 단계 나누기")]
+            [Tooltip("명암을 2단이 아니라 3단으로 나눈다.\n\n" +
+                     "밝은 면 / 그림자 / 더 깊은 그림자로 갈라져서\n" +
+                     "머리카락·깃털처럼 굴곡이 많은 곳의 면이 또렷하게 나뉜다.\n" +
+                     "얼굴은 보통 끄는 편이 낫다.")]
+            public bool 삼단명암 = false;
+
+            [Tooltip("두 번째 경계 위치. '그림자_임계값'보다 낮아야 의미가 있다.\n" +
+                     "이 값 아래로 어두운 부분이 '깊은 그림자색'으로 한 번 더 눌린다.")]
+            [Range(0f, 1f)] public float 깊은그림자_임계값 = 0.28f;
+
+            [Tooltip("가장 어두운 단계의 색. 그림자색보다 조금 어둡고 채도가 있어야\n" +
+                     "단계가 살아난다. 검정에 가까워지면 툰 느낌이 죽는다.")]
+            public Color 깊은그림자색 = new Color(0.55f, 0.53f, 0.72f);
         }
 
         /// <summary>
@@ -110,6 +143,7 @@ namespace VRProject.Character
             명암평탄화 = 0.80f, 그림자_임계값 = 0.52f, 그림자_부드러움 = 0.10f,
             그림자색 = new Color(0.93f, 0.84f, 0.85f),
             하이라이트 = 0.02f, 림라이트 = 0.10f, 아웃라인두께 = 0.9f,
+            아웃라인색 = new Color(0.46f, 0.27f, 0.30f), 아웃라인_알베도혼합 = 0.40f,
             환경광영향 = 0.15f, 그림자받기 = 0.35f,
             표정_띄우기 = 0.004f,
             얼굴아웃라인_밀기 = 0.006f,
@@ -143,7 +177,11 @@ namespace VRProject.Character
             명암평탄화 = 0.28f, 그림자_임계값 = 0.50f, 그림자_부드러움 = 0.04f,
             그림자색 = new Color(0.75f, 0.72f, 0.88f),
             하이라이트 = 0.22f, 림라이트 = 0.22f, 아웃라인두께 = 1.3f,
+            아웃라인색 = new Color(0.42f, 0.20f, 0.30f), 아웃라인_알베도혼합 = 0.55f,
             환경광영향 = 0.20f, 그림자받기 = 0.5f,
+            // 머리카락·깃털은 굴곡이 많아 3단으로 나눌 때 가장 효과가 크다.
+            삼단명암 = true, 깊은그림자_임계값 = 0.28f,
+            깊은그림자색 = new Color(0.56f, 0.52f, 0.74f),
         };
 
         [Tooltip("Body_D / Coat_D 텍스처 + Hand, High_heels")]
@@ -155,12 +193,30 @@ namespace VRProject.Character
             환경광영향 = 0.20f, 그림자받기 = 0.5f,
         };
 
+        [Tooltip("코트와 깃털 트림. 이 모델은 슬롯 5에서 둘이 같은 머티리얼(Caot_D)을\n" +
+                 "공유하므로 함께 조절된다.\n\n" +
+                 "'머티리얼 수동 분류'에 Caot_D를 이 그룹으로 지정해서 쓴다.\n" +
+                 "지정하지 않으면 이름이 coat에 걸려 의상_피부로 간다.")]
+        public PartShading 깃털_장식 = new PartShading
+        {
+            // 코트는 면적이 큰 옷이라 너무 평평하면 형태가 죽는다.
+            // 깃털의 보송한 느낌은 평탄화보다 넓은 경계(부드러움)로 잡는 편이 낫다.
+            명암평탄화 = 0.22f, 그림자_임계값 = 0.50f, 그림자_부드러움 = 0.11f,
+            그림자색 = new Color(0.70f, 0.68f, 0.85f),
+            하이라이트 = 0.03f,   // 깃털에 하이라이트 밴드가 뜨면 기름져 보인다
+            아웃라인색 = new Color(0.30f, 0.22f, 0.40f), 아웃라인_알베도혼합 = 0.50f,
+            림라이트 = 0.22f,     // 대신 림으로 실루엣을 살린다
+            아웃라인두께 = 1.2f,
+            환경광영향 = 0.20f, 그림자받기 = 0.5f,
+        };
+
         [Tooltip("Halo, Horn_Meltal 등 금속·장식")]
         public PartShading 금속_장식 = new PartShading
         {
             명암평탄화 = 0.10f, 그림자_임계값 = 0.48f, 그림자_부드러움 = 0.03f,
             그림자색 = new Color(0.62f, 0.63f, 0.80f),
             하이라이트 = 0.45f, 림라이트 = 0.30f, 아웃라인두께 = 1.0f,
+            아웃라인색 = new Color(0.34f, 0.25f, 0.14f), 아웃라인_알베도혼합 = 0.45f,
             환경광영향 = 0.35f, 그림자받기 = 0.5f,
         };
 
@@ -190,6 +246,22 @@ namespace VRProject.Character
         [Range(0f, 2f)] public float 광원세기 = 1f;
 
         // ────────────────────────────────────────────────────────────
+        /// <summary>수동 분류에서 고를 수 있는 그룹.</summary>
+        public enum PartGroup { 표정, 볼붉힘, 머리카락, 깃털_장식, 의상_피부, 금속_장식 }
+
+        [Serializable]
+        public class MaterialOverride
+        {
+            public Material 머티리얼;
+            public PartGroup 그룹 = PartGroup.머리카락;
+        }
+
+        [Header("머티리얼 수동 분류")]
+        [Tooltip("이름·텍스처로 자동 판별한 결과를 덮어쓴다. 여기 있는 것이 최우선이다.\n\n" +
+                 "예: Feather는 이름 때문에 머리카락으로 가는데, 여기서 '깃털_장식'으로\n" +
+                 "지정하면 하이라이트를 따로 낮출 수 있다.")]
+        public List<MaterialOverride> 머티리얼_수동분류 = new List<MaterialOverride>();
+
         [Header("대상")]
         [Tooltip("비워두면 자식의 모든 렌더러를 쓴다.")]
         public Renderer[] 렌더러;
@@ -284,6 +356,19 @@ namespace VRProject.Character
             m.SetFloat("_EnvironmentInfluence", p.환경광영향);
             m.SetFloat("_ReceiveShadowStrength", p.그림자받기);
 
+            // 데칼 모드에서만 의미가 있다. 불투명 모드는 Blend가 One/Zero라 알파를 무시한다.
+            if (m.HasProperty("_BaseColor"))
+            {
+                Color bc = m.GetColor("_BaseColor");
+                bc.a = p.불투명도;
+                m.SetColor("_BaseColor", bc);
+            }
+
+            m.SetFloat("_ShadowThreshold2", p.깊은그림자_임계값);
+            m.SetColor("_ShadowTint2", p.깊은그림자색);
+            m.SetFloat("_SecondStep", p.삼단명암 ? 1f : 0f);
+            SetKeyword(m, "_SECONDSTEP_ON", p.삼단명암);
+
             float outlineWidth = p.아웃라인두께;
             float zOffset = 0f;
             float outlineZOffset = 0f;
@@ -322,6 +407,8 @@ namespace VRProject.Character
             m.SetFloat("_ZOffset", zOffset);
             m.SetFloat("_OutlineZOffset", outlineZOffset);
             m.SetFloat("_OutlineWidth", outlineWidth);
+            m.SetColor("_OutlineColor", p.아웃라인색);
+            m.SetFloat("_OutlineTintByAlbedo", p.아웃라인_알베도혼합);
 
             bool outline = outlineWidth > 0f;
             m.SetFloat("_OutlineEnabled", outline ? 1f : 0f);
@@ -386,6 +473,15 @@ namespace VRProject.Character
         /// </summary>
         private PartShading PickPart(Material m)
         {
+            // 수동 분류가 가장 먼저다. 자동 판별이 틀렸을 때 여기서 바로잡는다.
+            if (머티리얼_수동분류 != null)
+            {
+                foreach (MaterialOverride o in 머티리얼_수동분류)
+                {
+                    if (o?.머티리얼 != null && o.머티리얼 == m) return ShadingOf(o.그룹);
+                }
+            }
+
             // 볼 붉힘은 머티리얼을 직접 지정받는다. 분리 후에도 이름이 원본과 비슷해서
             // 문자열로 구분하려 들면 눈과 헷갈린다.
             if (볼붉힘_머티리얼 != null && m == 볼붉힘_머티리얼) return 볼_붉힘;
@@ -397,6 +493,62 @@ namespace VRProject.Character
                 if (byTex != null) return byTex;
             }
             return Classify(m.name) ?? 의상_피부;
+        }
+
+        /// <summary>
+        /// 각 머티리얼이 어느 그룹으로 분류됐는지 Console에 출력한다.
+        /// 수동 분류를 넣은 뒤 의도대로 걸렸는지 확인할 때 쓴다.
+        /// </summary>
+        [ContextMenu("분류 결과 확인")]
+        public void LogClassification()
+        {
+            CollectRenderers();
+            if (렌더러 == null) return;
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"[CharacterToonSettings] {name} — 부위 분류");
+
+            foreach (Renderer r in 렌더러)
+            {
+                if (r == null) continue;
+                Material[] mats = r.sharedMaterials;
+
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    Material m = mats[i];
+                    if (m == null) { sb.AppendLine($"   슬롯[{i}] (없음)"); continue; }
+
+                    Texture t = m.HasProperty("_BaseMap") ? m.GetTexture("_BaseMap") : null;
+                    sb.AppendLine($"   슬롯[{i}] {m.name,-22} → {GroupNameOf(PickPart(m)),-10} " +
+                                  $"(텍스처 {(t != null ? t.name : "없음")})");
+                }
+            }
+
+            Debug.Log(sb.ToString(), this);
+        }
+
+        private string GroupNameOf(PartShading p)
+        {
+            if (ReferenceEquals(p, 표정)) return "표정";
+            if (ReferenceEquals(p, 볼_붉힘)) return "볼붉힘";
+            if (ReferenceEquals(p, 머리카락)) return "머리카락";
+            if (ReferenceEquals(p, 깃털_장식)) return "깃털_장식";
+            if (ReferenceEquals(p, 금속_장식)) return "금속_장식";
+            if (ReferenceEquals(p, 의상_피부)) return "의상_피부";
+            return "?";
+        }
+
+        private PartShading ShadingOf(PartGroup g)
+        {
+            switch (g)
+            {
+                case PartGroup.표정:     return 표정;
+                case PartGroup.볼붉힘:   return 볼_붉힘;
+                case PartGroup.머리카락: return 머리카락;
+                case PartGroup.깃털_장식: return 깃털_장식;
+                case PartGroup.금속_장식: return 금속_장식;
+                default:                 return 의상_피부;
+            }
         }
 
         private PartShading Classify(string raw)

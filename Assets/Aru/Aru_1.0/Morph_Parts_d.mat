@@ -30,12 +30,17 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _EnvironmentInfluence: 0.15
-    - _Flatten: 0.8
-    - _ReceiveShadowStrength: 0.35
-    - _ShadowFeather: 0.1
+    - _EnvironmentInfluence: 0
+    - _Flatten: 0.178
+    - _OutlineTintByAlbedo: 0.4
+    - _ReceiveShadowStrength: 0.365
+    - _ShadowFeather: 0.001
+    - _ShadowThreshold: 0.404
+    - _ShadowThreshold2: 0.016
     m_Colors:
+    - _OutlineColor: {r: 0.7169812, g: 0.21306516, b: 0.2837904, a: 1}
     - _ShadowTint: {r: 0.93, g: 0.84, b: 0.85, a: 1}
+    - _ShadowTint2: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &2747118542928037455

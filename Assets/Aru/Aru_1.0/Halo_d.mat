@@ -105,7 +105,7 @@ Material:
     - _DstBlendAlpha: 0
     - _EnvironmentInfluence: 0.35
     - _EnvironmentReflections: 1
-    - _Flatten: 0.178
+    - _Flatten: 0.362
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -113,7 +113,7 @@ Material:
     - _OcclusionStrength: 1
     - _OutlineEnabled: 1
     - _OutlineMaxWidth: 0.006
-    - _OutlineTintByAlbedo: 0.35
+    - _OutlineTintByAlbedo: 0.45
     - _OutlineWidth: 1.51
     - _OutlineZOffset: 0
     - _Parallax: 0.005
@@ -124,13 +124,13 @@ Material:
     - _RimLightAlign: 0.6
     - _RimPower: 6
     - _SecondStep: 0
-    - _ShadowFeather: 0.03
-    - _ShadowThreshold: 0.268
+    - _ShadowFeather: 0.088
+    - _ShadowThreshold: 0.218
     - _ShadowThreshold2: 0.28
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecFeather: 0.08
-    - _SpecIntensity: 0.213
+    - _SpecIntensity: 0.121
     - _SpecPower: 40
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -146,10 +146,10 @@ Material:
     - _CharacterLightDir: {r: 0.35, g: 0.45, b: -0.82, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _OutlineColor: {r: 0.12999997, g: 0.14999998, b: 0.29999998, a: 1}
+    - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimColor: {r: 0.78, g: 0.85, b: 1, a: 1}
-    - _ShadowTint: {r: 0.75226945, g: 0.7678106, b: 0.990566, a: 1}
-    - _ShadowTint2: {r: 0.54999995, g: 0.53, b: 0.72, a: 1}
+    - _ShadowTint: {r: 1, g: 1, b: 1, a: 1}
+    - _ShadowTint2: {r: 0.55, g: 0.53, b: 0.72, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecColor2: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
