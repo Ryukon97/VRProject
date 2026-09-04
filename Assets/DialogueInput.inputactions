@@ -1,0 +1,28 @@
+{
+    "name": "DialogueInput",
+    "maps": [
+        {
+            "name": "Dialogue",
+            "id": "4c2b3a5f-7672-4bea-99f4-cddaf2c95285",
+            "actions": [
+                {
+                    "name": "Advance",
+                    "type": "Button",
+                    "id": "0feefa63-6a66-46e4-9a68-04603be3b105",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                { "name": "", "id": "96b8b2ad-6ff2-4319-8451-e17c8e1a2c8d", "path": "<XRController>{RightHand}/primaryButton", "interactions": "", "processors": "", "groups": "", "action": "Advance", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "3efccac4-1eda-49ba-b9de-87a9751d45b7", "path": "<XRController>{RightHand}/secondaryButton", "interactions": "", "processors": "", "groups": "", "action": "Advance", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "0cf4673a-9cc8-41da-8cc1-7bede1156c12", "path": "<XRController>{LeftHand}/primaryButton", "interactions": "", "processors": "", "groups": "", "action": "Advance", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "8f9145fb-b8b3-4196-9764-c409b7fa051d", "path": "<XRController>{LeftHand}/secondaryButton", "interactions": "", "processors": "", "groups": "", "action": "Advance", "isComposite": false, "isPartOfComposite": false },
+                { "name": "", "id": "502024d9-c7ff-4a38-a717-880a35d47e4b", "path": "<Keyboard>/space", "interactions": "", "processors": "", "groups": "", "action": "Advance", "isComposite": false, "isPartOfComposite": false }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
