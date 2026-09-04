@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 720e887efb9f37940828b07ff70d9686, type: 3}
+  m_Name: BGM
+  m_EditorClassIdentifier: Assembly-CSharp::SoundDataSO
+  BGMEvents:
+  - EventName: "\uBC30\uACBD\uC74C"
+    StartID: 0
+    EndID: 1
+    BGMIndex: 0
+    BGMClip: {fileID: 8300000, guid: 12bc2c189a8bab645b612542be22f5b3, type: 3}
+    FadeDuration: 1.5

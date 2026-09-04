@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEngine.Video;
 //using UnityEngine.UIElements;
 
 public class ChatManager : MonoBehaviour
@@ -19,25 +18,15 @@ public class ChatManager : MonoBehaviour
     public TextMeshProUGUI CharacterName;
     public GameObject choicePanel;
     public TextMeshProUGUI[] choiceButtonsText;
-    public UnityEngine.UI.Image CharacterImage;
-    public UnityEngine.UI.Image CharacterImage2;
-    public Image BackgroundImage;
-    public Transform EffectImage;
     public DialogueEntry currentEntry;
-    public VideoPlayer effectVideoPlayer; // VideoPlayer_Base의 컴포넌트 연결
-    public RawImage videoDisplay;       // 화면에 보여줄 RawImage
 
 
     [Header("UI References")]
     public UnityEngine.UI.Image ChatImage;
 
-    [Header("Effect Settings")]
-    public GameObject EffectParentGroup;
 
 
 
-    private Coroutine RotationCoroutine;
-    private Coroutine CharacterMoveCoroutine;
 
     public bool isPausedByMenu = false;
     private int nextIDResult = -1;
@@ -89,30 +78,6 @@ public class ChatManager : MonoBehaviour
         StartCoroutine(PlayDialogue(firstID));
     }
 
-    private void HandleVideoEffect(VideoClip clip)
-    {
-        if (effectVideoPlayer == null || videoDisplay == null) return;
-
-        if (clip != null)
-        {
-            // [수정] 부모 오브젝트(All_Effect 등)가 꺼져있는지 확인하고 켭니다.
-            if (EffectParentGroup != null)
-                EffectParentGroup.SetActive(true);
-
-            // 자식인 VideoPlayer 오브젝트도 확실히 켭니다.
-            effectVideoPlayer.gameObject.SetActive(true);
-            videoDisplay.gameObject.SetActive(true);
-
-            effectVideoPlayer.clip = clip;
-            effectVideoPlayer.Prepare();
-            effectVideoPlayer.Play();
-        }
-        else
-        {
-            effectVideoPlayer.Stop();
-            videoDisplay.gameObject.SetActive(false);
-        }
-    }
     public IEnumerator PlayDialogue(int startID)
     {
         //int currentGroupIdx = 0;
@@ -143,85 +108,14 @@ public class ChatManager : MonoBehaviour
                 BGMManager.instance.PlayOneShotSE(currentEntry.EffectSound, currentEntry.seVolune);
             }
 
-            HandleVideoEffect(currentEntry.effectVideoClip);
 
-            if (BackgroundImage != null)
-            {
-                if (currentEntry.BackGroundSprit != null)
-                {
-                    BackgroundImage.gameObject.SetActive(true);
-                    BackgroundImage.sprite = currentEntry.BackGroundSprit;
-                }
-
-            }
 
             if (ChatImage != null)
                 ChatImage.gameObject.SetActive(currentEntry.showChatUI);
 
-            //if (effectVideoPlayer != null && videoDisplay != null)
-            //{
-            //    if (currentEntry.effectVideoClip != null)
-            //    {
-                  
-            //        videoDisplay.gameObject.SetActive(true);
-            //        effectVideoPlayer.gameObject.SetActive(true);
-
-                    
-            //        effectVideoPlayer.clip = currentEntry.effectVideoClip;
-            //        effectVideoPlayer.Stop(); 
-            //        effectVideoPlayer.Play();
-            //    }
-            //    else
-            //    {
-                    
-            //        effectVideoPlayer.Stop();
-            //        videoDisplay.gameObject.SetActive(false);
-            //    }
-            //}
 
 
 
-            if (CharacterImage != null)
-            {
-                if (currentEntry.Char1 != null && currentEntry.Char1.CharacterPNG != null)
-                {
-                    CharacterImage.gameObject.SetActive(true);
-                    CharacterImage.sprite = currentEntry.Char1.CharacterPNG;
-                    CharacterImage.SetNativeSize();
-                    CharacterImage.rectTransform.localScale = Vector3.one * currentEntry.Char1.CharacterScale;
-
-                    if (CharacterMoveCoroutine != null) StopCoroutine(CharacterMoveCoroutine);
-                    CharacterMoveCoroutine = StartCoroutine(AnimateCharacter(CharacterImage, currentEntry.Char1.CharacterPos, currentEntry.Char1.moveDuration));
-
-                    if (RotationCoroutine != null) StopCoroutine(RotationCoroutine);
-                    RotationCoroutine = StartCoroutine(AnimationRotation(CharacterImage, currentEntry.Char1.CharacterRotation, currentEntry.Char1.moveDuration));
-                }
-                else if (currentEntry.characterIllust != null)
-                {
-                    CharacterImage.gameObject.SetActive(true);
-                    CharacterImage.sprite = currentEntry.characterIllust;
-                    CharacterImage.rectTransform.anchoredPosition = Vector2.zero;
-                    CharacterImage.rectTransform.localRotation = Quaternion.identity;
-                }
-                else { CharacterImage.gameObject.SetActive(false); }
-            }
-
-
-            if (CharacterImage2 != null)
-            {
-                if (currentEntry.Char2 != null && currentEntry.Char2.CharacterPNG != null)
-                {
-                    CharacterImage2.gameObject.SetActive(true);
-                    CharacterImage2.sprite = currentEntry.Char2.CharacterPNG;
-                    CharacterImage2.SetNativeSize();
-                    CharacterImage2.rectTransform.localScale = Vector3.one * currentEntry.Char2.CharacterScale;
-
-
-                    StartCoroutine(AnimateCharacter(CharacterImage2, currentEntry.Char2.CharacterPos, currentEntry.Char2.moveDuration));
-                    StartCoroutine(AnimationRotation(CharacterImage2, currentEntry.Char2.CharacterRotation, currentEntry.Char2.moveDuration));
-                }
-                else { CharacterImage2.gameObject.SetActive(false); }
-            }
 
             yield return StartCoroutine(NormalChatOnlyText(currentEntry.speakerName, currentEntry.dialogueText));
             yield return StartCoroutine(WaitForInput());
@@ -258,7 +152,6 @@ public class ChatManager : MonoBehaviour
 
             if (currentEntry == null)
             {
-                if (CharacterImage != null) CharacterImage.gameObject.SetActive(false);
                 Debug.Log("<color=yellow>시나리오가 끝났습니다!</color>");
 
                 ScenarioController controller = FindAnyObjectByType<ScenarioController>();
@@ -281,50 +174,6 @@ public class ChatManager : MonoBehaviour
         }
         return null;
     }
-    IEnumerator AnimateCharacter(UnityEngine.UI.Image targetImage, Vector2 TargetPos, float duration)
-    {
-        if (targetImage == null) yield break;
-        RectTransform rect = targetImage.rectTransform;
-        Vector2 startPos = rect.anchoredPosition;
-        float elapsed = 0f;
-
-        if (duration <= 0f)
-        {
-            rect.anchoredPosition = TargetPos;
-            yield break;
-        }
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            rect.anchoredPosition = Vector2.Lerp(startPos, TargetPos, elapsed / duration);
-            yield return null;
-        }
-        rect.anchoredPosition = TargetPos;
-    }
-
-    IEnumerator AnimationRotation(UnityEngine.UI.Image targetImage, float TragetZRotation, float Duration)
-    {
-        if (targetImage == null) yield break;
-        RectTransform rect = targetImage.rectTransform;
-        Quaternion StartRot = rect.localRotation;
-        Quaternion TargetRot = Quaternion.Euler(0, 0, TragetZRotation);
-        float elapsed = 0f;
-
-        if (Duration <= 0f)
-        {
-            rect.localRotation = TargetRot;
-            yield break;
-        }
-        while (elapsed < Duration)
-        {
-            elapsed += Time.deltaTime;
-            rect.localRotation = Quaternion.Lerp(StartRot, TargetRot, elapsed / Duration);
-            yield return null;
-        }
-        rect.localRotation = TargetRot;
-    }
-
     IEnumerator ShowScenarioChoices(List<ChoiceData> choices)
     {
         nextIDResult = -1;

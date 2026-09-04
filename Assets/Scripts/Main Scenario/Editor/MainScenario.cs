@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using UnityEngine.Video;
 
 public class MainScenario : EditorWindow
 {
@@ -213,23 +212,6 @@ public class MainScenario : EditorWindow
                                 EditorGUILayout.PropertyField(nextIndexProp, new GUIContent("강제 이동 ID"));
                             }
 
-                            EditorGUILayout.Space(5);
-                            EditorGUILayout.LabelField("🎥 영상 연출 설정", EditorStyles.boldLabel);
-
-                            // 1. 비디오 클립 할당 칸
-                            SerializedProperty videoClipProp = element.FindPropertyRelative("effectVideoClip");
-                            if (videoClipProp != null)
-                            {
-                                EditorGUILayout.BeginVertical("helpbox"); // 보기 좋게 박스로 감쌉니다.
-                                EditorGUILayout.PropertyField(videoClipProp, new GUIContent("연출용 비디오 클립 (.mp4)", "이 대사에서 재생할 영상 파일을 넣어주세요."));
-
-                                // 팁 제공 (마스타의 편의를 위해!)
-                                if (videoClipProp.objectReferenceValue == null)
-                                {
-                                    EditorGUILayout.HelpBox("영상이 없으면 일반 대사로 진행됩니다.", MessageType.None);
-                                }
-                                EditorGUILayout.EndVertical();
-                            }
 
                             EditorGUILayout.Space(2);// 효과음관련
                             SerializedProperty SoundFolderProp = element.FindPropertyRelative("EffectSound");

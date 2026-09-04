@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEditor;
 #endif
 using System.Collections.Generic;
-using UnityEngine.Video;
 
 
 [CreateAssetMenu(fileName = "NewScenario", menuName = "Scenario/DialogueData")] //t시나리오 에디터
@@ -79,8 +78,6 @@ public class DialogueEntry
 
     [Header("이 대사 이후 이동할 번호 (기본 값 -1은 순차진행)")]
     public int nextIndexOverride = -1;
-    [Header("영상 및 오브젝트 연출")]
-    public VideoClip effectVideoClip;
 
 }
     [System.Serializable]
