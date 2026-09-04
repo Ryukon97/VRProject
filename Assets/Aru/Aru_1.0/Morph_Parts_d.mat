@@ -30,15 +30,20 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _AmbientFlatten: 0.499
+    - _AmbientStrength: 1.269
     - _EnvironmentInfluence: 0
     - _Flatten: 0.178
+    - _OutlineEnabled: 0
     - _OutlineTintByAlbedo: 0.4
     - _ReceiveShadowStrength: 0.365
     - _RimIntensity: 0
+    - _RimPower: 5.27
     - _SecondStep: 0
     - _ShadowFeather: 0.001
     - _ShadowThreshold: 0.404
     - _ShadowThreshold2: 0.016
+    - _ZOffset: 0
     m_Colors:
     - _OutlineColor: {r: 0.41509432, g: 0.08419366, b: 0.13036586, a: 1}
     - _ShadowTint: {r: 0.93, g: 0.84, b: 0.85, a: 1}

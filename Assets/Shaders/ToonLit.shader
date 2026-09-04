@@ -677,4 +677,9 @@ Shader "VRProject/ToonLit"
     }
 
     FallBack "Universal Render Pipeline/Lit"
+
+    // 머티리얼 인스펙터를 섹션으로 정리하고 토글↔키워드를 동기화한다.
+    // 이게 없으면 41개 프로퍼티가 한 줄로 늘어서고, _AlphaClip 같은 값을
+    // 손으로 바꿨을 때 키워드가 따라가지 않아 조용히 동작하지 않는다.
+    CustomEditor "VRProject.EditorTools.ToonLitShaderGUI"
 }

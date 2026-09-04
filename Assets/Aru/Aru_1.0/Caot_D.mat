@@ -156,7 +156,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _CharacterLightColor: {r: 1, g: 1, b: 1, a: 1}
-    - _CharacterLightDir: {r: 0.35, g: 0.45, b: -0.82, a: 0}
+    - _CharacterLightDir: {r: 0.012769495, g: 1.84, b: -0.03626093, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0.3591195, g: 0.23740655, b: 0.5188679, a: 1}

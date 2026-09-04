@@ -130,7 +130,7 @@ Material:
     - _ReceiveShadows: 1
     - _RimIntensity: 0
     - _RimLightAlign: 0.6
-    - _RimPower: 4.71
+    - _RimPower: 5.67
     - _SecondStep: 0
     - _ShadowFeather: 0.12
     - _ShadowThreshold: 0.52

@@ -103,8 +103,8 @@ Material:
     - _AdditionalLightIntensity: 1
     - _AlphaClip: 1
     - _AlphaToMask: 1
-    - _AmbientFlatten: 0.6
-    - _AmbientStrength: 1
+    - _AmbientFlatten: 0
+    - _AmbientStrength: 0.235
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -126,7 +126,7 @@ Material:
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _OutlineEnabled: 1
-    - _OutlineMaxWidth: 0.006
+    - _OutlineMaxWidth: 0.0115
     - _OutlineTintByAlbedo: 0.415
     - _OutlineWidth: 0.71
     - _OutlineZOffset: 0
@@ -156,8 +156,8 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _CharacterLightColor: {r: 1, g: 1, b: 1, a: 1}
-    - _CharacterLightDir: {r: 0.35, g: 0.45, b: -0.82, a: 0}
+    - _CharacterLightColor: {r: 1, g: 0.9292453, b: 0.9292453, a: 1.039}
+    - _CharacterLightDir: {r: 0.06, g: 0.9992608, b: -0.03626093, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0.9245283, g: 0.40557134, b: 0.40557134, a: 1}
