@@ -215,3 +215,9 @@ x86/
 
 # Built Visual Studio Code Extensions
 *.vsix
+### Unity overrides (must stay last)
+# NuGet/C++ rules above wrongly swallow Unity's own folders — re-include them.
+!/[Pp]ackages/
+!/[Pp]ackages/**
+!/[Aa]ssets/**
+!/[Pp]roject[Ss]ettings/**

@@ -1,0 +1,35 @@
+# Unity YAML assets must be LF, and merged with UnityYAMLMerge
+* text=auto eol=lf
+
+*.cs        text diff=csharp
+*.shader    text
+*.hlsl      text
+*.cginc     text
+*.json      text
+*.asmdef    text
+*.meta      text merge=unityyamlmerge eol=lf
+*.unity     text merge=unityyamlmerge eol=lf
+*.prefab    text merge=unityyamlmerge eol=lf
+*.asset     text merge=unityyamlmerge eol=lf
+*.mat       text merge=unityyamlmerge eol=lf
+*.anim      text merge=unityyamlmerge eol=lf
+*.controller text merge=unityyamlmerge eol=lf
+*.overrideController text merge=unityyamlmerge eol=lf
+*.physicMaterial text merge=unityyamlmerge eol=lf
+*.playable  text merge=unityyamlmerge eol=lf
+*.inputactions text eol=lf
+
+# Binary
+*.fbx    binary
+*.pmx    binary
+*.png    binary
+*.jpg    binary
+*.tga    binary
+*.psd    binary
+*.exr    binary
+*.mp3    binary
+*.wav    binary
+*.ogg    binary
+*.dll    binary
+*.so     binary
+*.unitypackage binary
