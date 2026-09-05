@@ -199,8 +199,27 @@ public class MainScenario : EditorWindow
                             EditorGUILayout.Space(2);
                             EditorGUILayout.PropertyField(element.FindPropertyRelative("dialogueText"), new GUIContent("대사 내용"));
 
+                            EditorGUILayout.Space(5);
 
-                            EditorGUILayout.PropertyField(element.FindPropertyRelative("showChatUI"), new GUIContent("채팅창 표시 여부: 체크하면 켜지고 해제하면 꺼집니다"));              
+                            // 표정과 입모양. 얼굴 연출이라 붙여둔다.
+                            EditorGUILayout.LabelField("얼굴 연출", EditorStyles.boldLabel);
+
+                            EditorGUILayout.PropertyField(
+                                element.FindPropertyRelative("facialExpressionIndex"),
+                                new GUIContent("표정 번호",
+                                    "캐릭터의 Facial Expression 컴포넌트에 있는 '표정 목록'의 순번. 0부터 셉니다.\n" +
+                                    "-1이면 기본 표정으로 되돌립니다(ChatManager의 '기본 표정 번호').\n" +
+                                    "표정을 이어가려면 다음 대사에도 같은 번호를 적으세요."));
+
+                            EditorGUILayout.PropertyField(
+                                element.FindPropertyRelative("playMouthAnimation"),
+                                new GUIContent("입모양 재생",
+                                    "체크하면 이 대사를 말하는 동안 입이 움직입니다.\n" +
+                                    "타이핑이 끝나거나 최대 재생시간(기본 5초)에 닿으면 멈춥니다."));
+
+                            EditorGUILayout.Space(5);
+
+                            EditorGUILayout.PropertyField(element.FindPropertyRelative("showChatUI"), new GUIContent("채팅창 표시 여부: 체크하면 켜지고 해제하면 꺼집니다"));
 
                             EditorGUILayout.Space(5);
 

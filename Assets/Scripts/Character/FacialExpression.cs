@@ -92,7 +92,9 @@ namespace VRProject.Character
         private const string MorphFaceShade = "顔かげ";
         private const string MorphBlink = "まばたき";
 
-        private static readonly string[] MouthMorphs = { "あ", "い", "う", "え", "お" };
+        // 모음만 따로 두던 목록(あ い う え お)은 지웠다.
+        // 립싱크에 넘길 때는 ワ大 같은 다른 입 모프까지 함께 놓아줘야 해서
+        // 아래 MouthGroupMorphs 하나만 쓴다.
 
         // 눈을 감는 모프. 이게 들어간 표정에서는 깜빡임을 멈춘다.
         private static readonly string[] EyeClosingMorphs =
@@ -140,6 +142,27 @@ namespace VRProject.Character
             {
                 Array.Copy(target, current, target.Length);
                 Apply();
+            }
+        }
+
+        /// <summary>
+        /// 입 모프(あ い う え お)를 바깥에 넘겨줄지.
+        ///
+        /// 켜면 이 컴포넌트가 입에서 손을 뗀다. MouthFlap이 재생하는 동안 켰다가
+        /// 끝나면 되돌린다. 이렇게 넘기지 않으면 표정과 입모양이 같은 모프를 두고
+        /// 매 프레임 서로 덮어써서 입이 떨린다.
+        /// </summary>
+        public bool 립싱크사용중
+        {
+            get => 립싱크_사용중;
+            set
+            {
+                if (립싱크_사용중 == value) return;
+                립싱크_사용중 = value;
+
+                // 관리 대상이 바뀌므로 다시 계산해야 한다. 켤 때는 입 모프가
+                // 관리에서 빠지며 0으로 놓이고, 끌 때는 표정 값으로 돌아온다.
+                RebuildAndApply();
             }
         }
 
@@ -416,10 +439,17 @@ namespace VRProject.Character
                 }
             }
 
-            // 립싱크가 입을 잡고 있으면 넘겨준다.
+            // 립싱크가 입을 잡고 있으면 입 전체를 넘겨준다.
+            //
+            // 예전에는 모음(あ い う え お)만 놓아줬는데, 그러면 표정이 쓰는 다른 입
+            // 모프가 그대로 남는다. 예를 들어 '활짝웃음'은 ワ大를 70으로 잡고 있어서,
+            // 입이 활짝 벌어진 채 고정된 위에 모음이 얹힌다. 변화가 묻혀서
+            // "입모양이 재생되지 않는다"로 보인다.
+            //
+            // 말하는 동안에는 입을 통째로 넘기는 것이 맞다. 표정은 눈·눈썹으로 남는다.
             if (립싱크_사용중)
             {
-                foreach (string m in MouthMorphs)
+                foreach (string m in MouthGroupMorphs)
                 {
                     int idx = IndexOf(mesh, m);
                     if (idx >= 0) managed[idx] = false;

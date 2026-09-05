@@ -45,6 +45,17 @@ public class ChatManager : MonoBehaviour
     [Tooltip("타임라인 재생 중 대사 진행을 멈출지. 보통 켜둔다.")]
     public bool pauseDuringTimeline = true;
 
+    [Header("얼굴 연출")]
+    [Tooltip("대사의 '표정 번호'를 적용할 컴포넌트.\n비워두면 씬에서 자동으로 찾는다.")]
+    public VRProject.Character.FacialExpression 표정;
+
+    [Tooltip("대사의 '입모양 재생'을 담당할 컴포넌트.\n비워두면 씬에서 자동으로 찾는다.")]
+    public VRProject.Character.MouthFlap 입모양;
+
+    [Tooltip("대사의 표정 번호가 -1일 때 되돌릴 표정 번호.\n" +
+             "보통 0(기본)이다. 표정 목록의 순서를 바꿨다면 여기도 맞출 것.")]
+    public int 기본표정번호 = 0;
+
     [Header("타이핑")]
     [Tooltip("글자 하나가 찍히는 간격(초). 작을수록 빠르다.")]
     [Range(0f, 0.2f)] public float typeSpeed = 0.05f;
@@ -58,6 +69,11 @@ public class ChatManager : MonoBehaviour
     {
         if (vrAdvanceAction != null && vrAdvanceAction.action != null)
             vrAdvanceAction.action.Enable();
+
+        // 표정과 입모양은 캐릭터에 붙어 있고 ChatManager는 UI 쪽에 있어서
+        // 인스펙터로 잇는 것을 잊기 쉽다. 비어 있으면 씬에서 찾아 쓴다.
+        if (표정 == null) 표정 = FindAnyObjectByType<VRProject.Character.FacialExpression>();
+        if (입모양 == null) 입모양 = FindAnyObjectByType<VRProject.Character.MouthFlap>();
     }
 
     void OnDisable()
@@ -120,11 +136,15 @@ public class ChatManager : MonoBehaviour
             if (ChatImage != null)
                 ChatImage.gameObject.SetActive(currentEntry.showChatUI);
 
-
-
-
+            ApplyFace(currentEntry);
 
             yield return StartCoroutine(NormalChatOnlyText(currentEntry.speakerName, currentEntry.dialogueText));
+
+            // 글자가 다 찍히면 말이 끝난 것이므로 입을 닫는다.
+            // MouthFlap 자체에도 최대 재생시간이 걸려 있지만, 그건 신호를 놓쳤을 때를
+            // 대비한 안전장치다. 평소에는 이쪽에서 대사 길이에 맞춰 멈춘다.
+            if (입모양 != null) 입모양.재생중지();
+
             yield return StartCoroutine(WaitForInput());
 
 
@@ -171,6 +191,55 @@ public class ChatManager : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// 대사 한 줄의 얼굴 연출을 적용한다.
+    ///
+    /// 표정 번호 -1은 '기본표정번호로 되돌린다'는 뜻이다.
+    /// 한 대사에서 웃겼으면 다음 대사에서 저절로 풀려야지, 지정하지 않은 대사가
+    /// 앞 표정을 물려받으면 장면 내내 웃는 얼굴이 남는다.
+    /// 표정을 이어가고 싶으면 같은 번호를 다시 적어주면 된다.
+    /// </summary>
+    void ApplyFace(DialogueEntry entry)
+    {
+        if (entry == null) return;
+
+        if (표정 != null)
+        {
+            int index = entry.facialExpressionIndex >= 0
+                ? entry.facialExpressionIndex
+                : 기본표정번호;
+
+            if (index >= 0 && index < 표정.Count)
+            {
+                표정.Play(index);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"<color=orange>[ChatManager] ID {entry.id}의 표정 번호 {index}는 " +
+                    $"표정 목록 범위(0~{표정.Count - 1})를 벗어났습니다. " +
+                    $"표정을 바꾸지 않습니다.</color>", this);
+            }
+        }
+
+        if (입모양 == null)
+        {
+            // 여기서 조용히 넘어가면 "체크했는데 입이 안 움직인다"가 되고
+            // 단서가 하나도 남지 않는다. 요구한 대사에서만 한 번 짚어준다.
+            if (entry.playMouthAnimation)
+            {
+                Debug.LogWarning(
+                    $"<color=orange>[ChatManager] ID {entry.id}가 입모양 재생을 요청했지만 " +
+                    "씬에 MouthFlap 컴포넌트가 없습니다.\n" +
+                    "메뉴 [Tools > VRProject > 입모양 컴포넌트 설정]을 실행하세요.</color>", this);
+            }
+            return;
+        }
+
+        if (entry.playMouthAnimation) 입모양.재생시작();
+        else 입모양.재생중지();
+    }
 
     public DialogueEntry GetEntryById(int targetID)
     {
@@ -224,7 +293,15 @@ public class ChatManager : MonoBehaviour
             bool wasPaused = isPausedByMenu;
             if (pauseDuringTimeline) isPausedByMenu = true;
 
+            // 타임라인이 캐릭터의 포즈를 잡는 동안 CharacterFollow가 루트를 계속 밀면
+            // 연출 중에 캐릭터가 걸어가 버린다. 재생 동안만 멈춰 세운다.
+            var follow = choiceDirector.GetComponent<VRProject.Character.CharacterFollow>();
+            bool followWasPaused = follow != null && follow.Paused;
+            if (follow != null && pauseDuringTimeline) follow.Paused = true;
+
             choiceDirector.playableAsset = timeline;
+            WarnIfTracksUnbound(timeline);
+
             choiceDirector.time = 0;
             choiceDirector.Play();
 
@@ -239,6 +316,8 @@ public class ChatManager : MonoBehaviour
             }
 
             choiceDirector.Stop();
+
+            if (follow != null && pauseDuringTimeline) follow.Paused = followWasPaused;
             if (pauseDuringTimeline) isPausedByMenu = wasPaused;
         }
         else if (timeline != null)
@@ -250,70 +329,174 @@ public class ChatManager : MonoBehaviour
         nextIDResult = targetID;
     }
 
+    /// <summary>
+    /// 타임라인의 애니메이션 트랙에 연기할 대상이 물려 있는지 확인한다.
+    ///
+    /// 바인딩은 타임라인 에셋이 아니라 (Director, Track) 짝으로 Director에 저장된다.
+    /// 그래서 playableAsset만 갈아끼우면, 새 타임라인의 트랙에는 바인딩이 없어서
+    /// 재생은 정상으로 돌아가는데 화면에서는 아무 일도 일어나지 않는다.
+    /// 에러가 안 나기 때문에 원인을 짚기가 특히 어렵다.
+    /// </summary>
+    void WarnIfTracksUnbound(UnityEngine.Timeline.TimelineAsset timeline)
+    {
+        foreach (var track in timeline.GetOutputTracks())
+        {
+            // 애니메이션 트랙만 본다. Activation 트랙 등은 비워두는 경우가 많다.
+            if (!(track is UnityEngine.Timeline.AnimationTrack)) continue;
+
+            if (choiceDirector.GetGenericBinding(track) == null)
+            {
+                Debug.LogWarning(
+                    $"<color=orange>[ChatManager] '{timeline.name}'의 '{track.name}' 트랙에 " +
+                    $"바인딩이 없습니다. 재생은 되지만 아무것도 움직이지 않습니다.\n" +
+                    $"{choiceDirector.name}의 Playable Director에서 이 트랙에 " +
+                    $"Animator를 연결하세요.</color>", choiceDirector);
+            }
+        }
+    }
+
     IEnumerator NormalChatOnlyText(string narrator, string narration)
     {
         CharacterName.text = (narrator == "나") ? " " : narrator;
         ChatText.text = "";
 
-        foreach (char letter in narration.ToCharArray())
+        // 타이핑 도중에 입력이 들어오면 남은 글자를 한 번에 채운다.
+        //
+        // 예전에는 타이핑이 다 끝나야 WaitForInput이 시작해서, 글자당 0.05초씩
+        // 걸리는 동안 아무리 눌러도 반응이 없었다. 40자면 2초다.
+        // 사용자 입장에서는 "눌렀는데 안 넘어가다가 갑자기 넘어가는" 것으로 느껴진다.
+        // 비주얼노벨에서는 타이핑 중 입력 = 즉시 완성이 표준 동작이다.
+        bool skipped = false;
+
+        foreach (char letter in narration)
         {
             if (isPausedByMenu) yield return new WaitUntil(() => !isPausedByMenu);
+
             ChatText.text += letter;
-            yield return new WaitForSeconds(0.05f);
+
+            // WaitForSeconds로 통째로 기다리면 그 사이 입력을 볼 수 없다.
+            // 직접 세면서 매 프레임 입력을 확인한다.
+            float elapsed = 0f;
+            while (elapsed < typeSpeed)
+            {
+                if (AdvancePressedThisFrame())
+                {
+                    skipped = true;
+                    break;
+                }
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            if (skipped) break;
+        }
+
+        if (skipped)
+        {
+            ChatText.text = narration;
+
+            // 한 번 누른 것이 '완성'과 '다음 대사'로 두 번 먹지 않도록 한 프레임 흘린다.
+            // WasPressedThisFrame은 눌린 프레임에만 참이므로 이걸로 충분하다.
+            yield return null;
         }
     }
 
     IEnumerator WaitForInput()
     {
-        yield return new WaitForSeconds(0.1f);
-        bool clicked = false;
-        while (!clicked)
+        // 대사가 막 끝난 프레임의 입력이 그대로 흘러들어오지 않게 한 프레임 띄운다.
+        yield return null;
+
+        bool wasPaused = isPausedByMenu;
+
+        while (true)
         {
-            Debug.Log("<color=orange>ChatManager: 설정창 열림 감지, 대기 중...</color>");
-            if (isPausedByMenu)
+            // 로그는 상태가 바뀌는 순간에만 찍는다.
+            //
+            // 예전에는 이 로그가 if 바깥에 있어서 입력을 기다리는 내내 매 프레임
+            // 찍혔다. 콘솔이 잠기고 프레임이 떨어져서 입력이 씹히는 것처럼 느껴졌다.
+            // 게다가 "설정창 닫힘" 로그가 오히려 열려 있는 동안 찍혀 의미가 뒤집혀 있었다.
+            if (isPausedByMenu != wasPaused)
             {
+                wasPaused = isPausedByMenu;
+                Debug.Log(wasPaused
+                    ? "<color=orange>ChatManager: 설정창 열림, 입력 대기 중단</color>"
+                    : "<color=lime>ChatManager: 설정창 닫힘, 입력 감지 재개</color>");
+            }
+
+            if (!isPausedByMenu && AdvancePressedThisFrame())
+            {
+                // 이 입력을 여기서 한 프레임 흘려 소진한다.
+                //
+                // 안 그러면 같은 프레임 안에서 다음 대사가 시작되고, 그 대사의
+                // 타이핑 루프가 방금 그 입력을 '스킵'으로 다시 읽는다. 결과적으로
+                // 모든 대사가 즉시 완성되고, 대사에 딸린 입모양도 한 프레임 만에
+                // 끝나서 움직이지 않는 것처럼 보인다.
                 yield return null;
-                Debug.Log("<color=lime>ChatManager: 설정창 닫힘, 입력 감지 재개!</color>");
-                continue;
-
-            } // 대사클릭 관련은 여기있음
-
-            // ── VR 입력 ────────────────────────────────────────────
-            // Quest 컨트롤러의 A/B(오른손), X/Y(왼손)로 다음 대사로 넘어간다.
-            // VR에는 마우스가 없으므로 이쪽이 주 입력이고, 아래 마우스·키보드는
-            // 에디터에서 헤드셋 없이 테스트할 때를 위해 남겨둔다.
-            if (vrAdvanceAction != null && vrAdvanceAction.action != null
-                && vrAdvanceAction.action.WasPressedThisFrame())
-            {
-                clicked = true;
+                break;
             }
 
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                if (EventSystem.current.IsPointerOverGameObject())
-                {
-                    // [중요] 여기서 마스타를 괴롭히는 범인의 이름을 로그로 찍어봅시다!
-                    PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = Mouse.current.position.ReadValue() };
-                    List<RaycastResult> results = new List<RaycastResult>();
-                    EventSystem.current.RaycastAll(pointerData, results);
-                    if (results.Count > 0)
-                    {
-                        Debug.Log("<color=red>클릭을 막는 범인 발견: " + results[0].gameObject.name + "</color>");
-                    }
-                }
-                else
-                {
-                    clicked = true; // UI가 아닌 곳(빨간색 영역 등)을 클릭하면 정상 작동
-                }
-            }
-            if (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)
-            {
-                clicked = true;
-            }
-         
             yield return null;
         }
-        Debug.Log("<color=white>입력 감지됨: 다음 대사로 진행합니다.</color>");
+    }
+
+    /// <summary>
+    /// 다음으로 넘기는 입력이 이번 프레임에 눌렸는지.
+    ///
+    /// 타이핑 중 스킵과 대사 대기가 같은 판정을 쓰도록 한곳에 모았다.
+    /// 양쪽이 각자 입력을 보면 한쪽만 고쳤을 때 동작이 어긋난다.
+    /// </summary>
+    bool AdvancePressedThisFrame()
+    {
+        // Quest 컨트롤러의 A/B(오른손), X/Y(왼손). VR에서는 이게 주 입력이다.
+        if (vrAdvanceAction != null && vrAdvanceAction.action != null
+            && vrAdvanceAction.action.WasPressedThisFrame())
+        {
+            return true;
+        }
+
+        // 아래 마우스·키보드는 헤드셋 없이 에디터에서 볼 때를 위한 보조 입력이다.
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            if (!IsPointerOverUI()) return true;
+        }
+
+        // 예전에는 anyKey를 봤는데, 그러면 WASD로 움직이기만 해도 대사가 넘어갔다.
+        // 넘김에 쓸 키만 명시한다.
+        if (Keyboard.current != null
+            && (Keyboard.current.spaceKey.wasPressedThisFrame
+                || Keyboard.current.enterKey.wasPressedThisFrame
+                || Keyboard.current.numpadEnterKey.wasPressedThisFrame))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 마우스가 UI 위에 있는지. 선택지 버튼을 누른 클릭이 대사까지 넘겨버리는 것을 막는다.
+    /// </summary>
+    bool IsPointerOverUI()
+    {
+        if (EventSystem.current == null) return false;
+        if (!EventSystem.current.IsPointerOverGameObject()) return false;
+
+        if (logBlockedClicks)
+        {
+            var pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = Mouse.current.position.ReadValue()
+            };
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            if (results.Count > 0)
+            {
+                Debug.Log($"<color=red>클릭을 막은 UI: {results[0].gameObject.name}</color>");
+            }
+        }
+
+        return true;
     }
 
 

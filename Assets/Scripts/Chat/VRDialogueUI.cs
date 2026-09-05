@@ -25,6 +25,11 @@ namespace VRProject.Dialogue
             화자_옆,       // 지정한 화자 옆에 고정. 플레이어를 향해서만 회전한다
         }
 
+        // 거리의 허용 범위. Range 속성과 런타임 클램프가 같은 값을 보도록 상수로 둔다.
+        // 캐릭터가 코앞에 설 수 있으므로 예전(0.6)보다 더 당길 수 있게 열어두었다.
+        private const float 최소거리 = 0.3f;
+        private const float 최대거리 = 5f;
+
         [Header("배치")]
         [Tooltip("비워두면 Camera.main(XR Origin의 Main Camera)을 쓴다.")]
         [SerializeField] private Transform 기준카메라;
@@ -36,8 +41,10 @@ namespace VRProject.Dialogue
 
         [Tooltip("눈에서 UI까지의 거리(m).\n\n" +
                  "1m보다 가까우면 초점을 맞추느라 눈이 피로해진다.\n" +
-                 "3m를 넘으면 글씨가 작아 읽기 어렵다. 1.5~2.0이 편하다.")]
-        [Range(0.6f, 4f)][SerializeField] private float 거리 = 1.6f;
+                 "3m를 넘으면 글씨가 작아 읽기 어렵다. 1.5~2.0이 편하다.\n\n" +
+                 "대화 상대가 코앞에 서 있으면 UI가 캐릭터에 가려진다.\n" +
+                 "그럴 때는 캐릭터보다 앞으로 당겨야 하므로 1.0 안팎까지 내린다.")]
+        [Range(최소거리, 최대거리)][SerializeField] private float 거리 = 1.6f;
 
         [Tooltip("시선 높이 기준 위아래 오프셋(m).\n" +
                  "음수면 시선보다 아래. 정면을 가리지 않아 대화 상대를 보면서 읽을 수 있다.")]
@@ -68,6 +75,26 @@ namespace VRProject.Dialogue
 
         private Canvas canvas;
         private bool 따라가는중;
+
+        /// <summary>
+        /// 눈에서 UI까지의 거리(m).
+        ///
+        /// 런타임에 바꾸면 다음 LateUpdate부터 반영된다. 설정 메뉴의 슬라이더나
+        /// 컨트롤러 조이스틱에 물려 쓰라고 열어두었다.
+        /// </summary>
+        public float 거리설정
+        {
+            get => 거리;
+            set => 거리 = Mathf.Clamp(value, 최소거리, 최대거리);
+        }
+
+        /// <summary>
+        /// 지금 거리에서 delta(m)만큼 밀거나 당긴다.
+        ///
+        /// 조이스틱 축에 물릴 때는 Time.deltaTime을 곱해서 넘길 것.
+        /// 예: ui.거리밀기(stick.y * 0.5f * Time.deltaTime)
+        /// </summary>
+        public void 거리밀기(float delta) => 거리설정 = 거리 + delta;
 
         private Transform Cam
         {
@@ -181,6 +208,26 @@ namespace VRProject.Dialogue
             if (dir.sqrMagnitude < 1e-6f) return;
 
             transform.rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+        }
+
+        // 편집 중에 거리를 눈으로 맞추기 위한 단축 메뉴.
+        // 인스펙터 슬라이더를 조금씩 끄는 것보다 빠르고, 값이 기억에 남는다.
+
+        /// <summary>캐릭터가 코앞에 설 때. 캐릭터보다 앞으로 나와 가려지지 않는다.</summary>
+        [ContextMenu("거리 · 가깝게 (1.0m)")]
+        private void 거리_가깝게() => 거리적용(1.0f);
+
+        [ContextMenu("거리 · 보통 (1.6m)")]
+        private void 거리_보통() => 거리적용(1.6f);
+
+        [ContextMenu("거리 · 멀게 (2.4m)")]
+        private void 거리_멀게() => 거리적용(2.4f);
+
+        private void 거리적용(float 값)
+        {
+            거리설정 = 값;
+            SnapToTarget();
+            Debug.Log($"[VRDialogueUI] 거리를 {거리:F2}m로 맞췄다.", this);
         }
 
         /// <summary>보간 없이 즉시 목표 위치로 옮긴다. 대화 시작 시점에 쓴다.</summary>

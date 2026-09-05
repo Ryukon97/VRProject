@@ -54,7 +54,8 @@ namespace VRProject.EditorTools
             AssetDatabase.SaveAssets();
 
             Debug.Log($"[HappyTimelineSetup] 트랙 구성 완료. " +
-                      $"'{TrackName}' 트랙에 '{happy.name}' ({happy.length:F2}초) 배치.", timeline);
+                      $"'{TrackName}' 트랙에 '{happy.name}' ({happy.length:F2}초) 배치. " +
+                      $"Track Offset = {track.trackOffset}.", timeline);
 
             BindInOpenScene(timeline, track);
         }
@@ -76,6 +77,17 @@ namespace VRProject.EditorTools
                 track = timeline.CreateTrack<AnimationTrack>(null, TrackName);
                 Debug.Log($"[HappyTimelineSetup] '{TrackName}' 애니메이션 트랙을 만들었다.");
             }
+
+            // 루트를 움직이는 클립(Mixamo는 대개 그렇다)을 얹을 때 제일 중요한 설정이다.
+            //
+            // 기본값 ApplyTransformOffsets는 "트랙에 적어둔 위치"를 기준으로 재생한다.
+            // 그 위치가 (0,0,0)이면 재생하는 순간 캐릭터가 월드 원점으로 순간이동한다.
+            // 캐릭터가 원점에서 멀리 서 있으면 그대로 시야에서 사라진 것처럼 보이는데,
+            // 에러가 안 나서 "타임라인이 재생 안 된다"로 오해하기 쉽다.
+            //
+            // ApplySceneOffsets는 지금 서 있는 자리를 기준으로 재생한다.
+            // 제자리에서 하는 감정 표현에는 이쪽이 맞다.
+            track.trackOffset = TrackOffset.ApplySceneOffsets;
 
             foreach (TimelineClip old in track.GetClips().ToArray())
             {
@@ -140,7 +152,42 @@ namespace VRProject.EditorTools
                       $"{aru.name} > Playable Director > '{TrackName}' 트랙 → {animator.name}.\n" +
                       "Play On Awake는 꺼두었다. 재생하려면 director.Play()를 부를 것.", director);
 
+            LinkToChatManager(director);
             WarnAboutActivationTrack(timeline);
+        }
+
+        /// <summary>
+        /// ChatManager가 선택지 타임라인을 재생할 때 쓸 Director를 연결한다.
+        ///
+        /// 이게 비어 있으면 ChatManager는 타임라인을 통째로 건너뛴다. 경고만 찍고
+        /// 대사는 그대로 넘어가버려서, "선택지에 타임라인을 넣었는데 재생이 안 된다"가 된다.
+        ///
+        /// Aru의 Director를 그대로 쓰는 이유는 바인딩 때문이다. 바인딩은 Director에
+        /// 저장되므로, 여기 이미 'Aru' 트랙 → Animator 연결이 들어 있는 Director를
+        /// 재사용해야 Happy_Aru가 실제로 캐릭터를 움직인다.
+        /// </summary>
+        private static void LinkToChatManager(PlayableDirector director)
+        {
+            ChatManager chat = Object.FindFirstObjectByType<ChatManager>();
+            if (chat == null)
+            {
+                Debug.LogWarning("[HappyTimelineSetup] 씬에서 ChatManager를 찾지 못해 " +
+                                 "choiceDirector 연결을 건너뛴다.");
+                return;
+            }
+
+            if (chat.choiceDirector == director)
+            {
+                Debug.Log("[HappyTimelineSetup] ChatManager.choiceDirector는 이미 연결되어 있다.", chat);
+                return;
+            }
+
+            Undo.RecordObject(chat, "선택지 Director 연결");
+            chat.choiceDirector = director;
+            EditorUtility.SetDirty(chat);
+
+            Debug.Log($"[HappyTimelineSetup] ChatManager.choiceDirector → {director.name} 연결 완료. " +
+                      "이제 선택지에 넣은 타임라인이 재생된다.", chat);
         }
 
         /// <summary>

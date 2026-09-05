@@ -53,6 +53,12 @@ public class DialogueEntry
     public string speakerName;
     [TextArea(3, 10)]
     public string dialogueText;
+    [Header("표정 번호 (FacialExpression의 표정목록 순번). -1이면 기본 표정으로 되돌립니다")]
+    public int facialExpressionIndex = -1;
+
+    [Header("이 대사 동안 입모양 애니메이션을 재생합니다")]
+    public bool playMouthAnimation = false;
+
     [Header("캐릭터 통 일러스트(1980x1080)")]
     public Sprite characterIllust;
 
