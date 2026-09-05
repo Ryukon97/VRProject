@@ -43,6 +43,7 @@ Material:
     - _ShadowFeather: 0.001
     - _ShadowThreshold: 0.404
     - _ShadowThreshold2: 0.016
+    - _SpecIntensity: 0
     - _ZOffset: 0
     m_Colors:
     - _OutlineColor: {r: 0.41509432, g: 0.08419366, b: 0.13036586, a: 1}

@@ -18,19 +18,14 @@ MonoBehaviour:
     entries:
     - id: 0
       speakerName: 
-      dialogueText: "\uC0AC\uC2E4 \uC784\uBB34\uB77C\uB294 \uC774\uC720\uC758 \uB370\uC774\uD2B8\uC9C0\uB9CC..."
+      dialogueText: "\uC624\uB298\uC740 \uC544\uB8E8\uC640 \uB2E8 \uB458\uC774\uC11C
+        \uC784\uBB34\uB97C \uC218\uD589\uD558\uC600\uB2E4"
       characterIllust: {fileID: 0}
       BackGroundSprit: {fileID: 0}
       showChatUI: 1
       EffectSound: {fileID: 0}
       seVolune: 0
-      choices:
-      - choiceText: "\uADF8\uB798\uC11C \uC9C0\uAE08\uC740 \uBB50\uD560\uAE4C"
-        choiceIndex: 0
-        timeline: {fileID: 0}
-      - choiceText: "\uC544\uB8E8\uB791 \uC139\uC2A4?"
-        choiceIndex: 0
-        timeline: {fileID: 0}
+      choices: []
       Char1:
         CharacterPNG: {fileID: 0}
         CharacterPos: {x: 0, y: 0}
@@ -46,8 +41,59 @@ MonoBehaviour:
       nextIndexOverride: -1
     - id: 1
       speakerName: 
-      dialogueText: "\uC624\uB298\uC740 \uC544\uB8E8\uC640 \uB2E8 \uB458\uC774\uC11C
-        \uC784\uBB34\uB97C \uC218\uD589\uD558\uC600\uB2E4"
+      dialogueText: "\uADF8\uB7F0\uB370 \uC784\uBB34\uAC00 \uB108\uBB34 \uBE60\uB974\uAC8C
+        \uB05D\uB0AC\uB2E4...."
+      characterIllust: {fileID: 0}
+      BackGroundSprit: {fileID: 0}
+      showChatUI: 1
+      EffectSound: {fileID: 0}
+      seVolune: 0
+      choices: []
+      Char1:
+        CharacterPNG: {fileID: 0}
+        CharacterPos: {x: 0, y: 0}
+        CharacterScale: 0
+        CharacterRotation: 0
+        moveDuration: 0
+      Char2:
+        CharacterPNG: {fileID: 0}
+        CharacterPos: {x: 0, y: 0}
+        CharacterScale: 0
+        CharacterRotation: 0
+        moveDuration: 0
+      nextIndexOverride: -1
+    - id: 2
+      speakerName: "\uC544\uB8E8"
+      dialogueText: "\uC120\uC0DD\uC774\uB791 \uD558\uB294\uAC70\uBA74 \uBB50\uB4E0
+        \uD560\uC790\uC2E0\uC788\uC5B4"
+      characterIllust: {fileID: 0}
+      BackGroundSprit: {fileID: 0}
+      showChatUI: 1
+      EffectSound: {fileID: 0}
+      seVolune: 0
+      choices:
+      - choiceText: "\uBC25\uC744 \uBA39\uC73C\uB7EC \uAC04\uB2E4"
+        choiceIndex: 3
+        timeline: {fileID: 0}
+      - choiceText: "\uC544\uB8E8\uB791 \uB370\uC774\uD2B8\uB97C\uAC04\uB2E4"
+        choiceIndex: 3
+        timeline: {fileID: 11400000, guid: ff96cccc4048aa949bd847820f381933, type: 2}
+      Char1:
+        CharacterPNG: {fileID: 0}
+        CharacterPos: {x: 0, y: 0}
+        CharacterScale: 0
+        CharacterRotation: 0
+        moveDuration: 0
+      Char2:
+        CharacterPNG: {fileID: 0}
+        CharacterPos: {x: 0, y: 0}
+        CharacterScale: 0
+        CharacterRotation: 0
+        moveDuration: 0
+      nextIndexOverride: -1
+    - id: 3
+      speakerName: "\uC544\uB8E8"
+      dialogueText: "... \uBB63...! "
       characterIllust: {fileID: 0}
       BackGroundSprit: {fileID: 0}
       showChatUI: 1

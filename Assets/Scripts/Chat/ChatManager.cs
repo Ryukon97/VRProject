@@ -45,6 +45,13 @@ public class ChatManager : MonoBehaviour
     [Tooltip("타임라인 재생 중 대사 진행을 멈출지. 보통 켜둔다.")]
     public bool pauseDuringTimeline = true;
 
+    [Header("타이핑")]
+    [Tooltip("글자 하나가 찍히는 간격(초). 작을수록 빠르다.")]
+    [Range(0f, 0.2f)] public float typeSpeed = 0.05f;
+
+    [Tooltip("입력이 막힌 원인을 콘솔에 찍는다. 평소에는 꺼둘 것.")]
+    public bool logBlockedClicks = false;
+
     // InputActionReference로 참조한 액션은 자동으로 켜지지 않는다.
     // 켜주지 않으면 WasPressedThisFrame()이 영원히 false다.
     void OnEnable()

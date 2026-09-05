@@ -12,6 +12,7 @@ EditorBuildSettings:
     path: Assets/07BackGround/Demo Scenes/DEMO Street.unity
     guid: 893c015c1a428084da7eecbce617a765
   m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 92de1950bb5543e4aa21ccc4344deafb, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: e1aca77e27f0ba345b11913f884b06d1, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: de264d8a93e15384d9e5c186fbbaef48, type: 2}
