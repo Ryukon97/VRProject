@@ -130,7 +130,7 @@ Material:
     - _OutlineEnabled: 1
     - _OutlineMaxWidth: 0.006
     - _OutlineTintByAlbedo: 0.35
-    - _OutlineWidth: 6
+    - _OutlineWidth: 1.05
     - _OutlineZOffset: 0
     - _Parallax: 0.02
     - _QueueOffset: 0

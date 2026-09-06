@@ -206,7 +206,12 @@ Shader "VRProject/ToonLit"
             Tags { "LightMode" = "SRPDefaultUnlit" }
 
             Cull Front
-            ZWrite On
+            // 본체와 같은 ZWrite를 쓴다.
+            //
+            // 예전에는 On으로 못박아 두었는데, 투명 머티리얼에서는 본체가 깊이를
+            // 안 쓰는데 검은 외곽 껍질만 깊이를 써서 뒤에 있는 것을 가려버렸다.
+            // 유리처럼 뒤가 비쳐야 하는 것에서 검은 섬광으로 나타난다.
+            ZWrite [_ZWrite]
             ZTest LEqual
 
             HLSLPROGRAM

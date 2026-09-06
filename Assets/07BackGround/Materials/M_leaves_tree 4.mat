@@ -149,7 +149,7 @@ Material:
     - _OutlineEnabled: 1
     - _OutlineMaxWidth: 0.006
     - _OutlineTintByAlbedo: 0.35
-    - _OutlineWidth: 6
+    - _OutlineWidth: 1.05
     - _OutlineZOffset: 0
     - _Parallax: 0.02
     - _QueueOffset: 0
@@ -185,10 +185,10 @@ Material:
     - _ZOffset: 0
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.43657607, g: 0.509434, b: 0.23308975, a: 1}
+    - _BaseColor: {r: 0.4365759, g: 0.509434, b: 0.23308957, a: 1}
     - _CharacterLightColor: {r: 1, g: 1, b: 1, a: 1}
     - _CharacterLightDir: {r: 0.35, g: 0.45, b: -0.82, a: 0}
-    - _Color: {r: 0.4365761, g: 0.509434, b: 0.23308977, a: 1}
+    - _Color: {r: 0.4365759, g: 0.509434, b: 0.23308957, a: 1}
     - _EmissionColor: {r: 0.39476374, g: 0.46226418, b: 0.26820046, a: 1}
     - _HueVariation: {r: 1, g: 0.5, b: 0, a: 0.1}
     - _HueVariationColor: {r: 0.6509434, g: 0.6509434, b: 0.6509434, a: 0.1}
