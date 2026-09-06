@@ -20,6 +20,18 @@ public class BGMManager : MonoBehaviour
     private bool isSourceAActive = true;
     private AudioClip currentPlayingClip;
 
+    /// <summary>지금 트는 곡의 제작자 지정 음량. 플레이어 슬라이더와 곱해서 쓴다.</summary>
+    private float currentBaseVolume = 1f;
+
+    /// <summary>
+    /// 지금 나와야 할 실제 음량.
+    ///
+    /// 제작자가 곡별로 맞춰둔 균형(BaseVolume)에 플레이어의 전체 음량을 곱한다.
+    /// 페이드 도중에도 매 프레임 이 값을 다시 읽으므로, 슬라이더를 끄는 중에도
+    /// 곧바로 따라온다.
+    /// </summary>
+    private float TargetVolume => currentBaseVolume * VRProject.Sound.SoundSettings.Bgm;
+
     /// <summary>
     /// 소스가 하나뿐인지. SourceB가 비었거나 SourceA와 같은 것을 가리키면 단일 소스다.
     ///
@@ -33,6 +45,25 @@ public class BGMManager : MonoBehaviour
         if (instance == null) instance = this;
         else Destroy(gameObject);
     }
+
+    void OnEnable() => VRProject.Sound.SoundSettings.Changed += 음량반영;
+    void OnDisable() => VRProject.Sound.SoundSettings.Changed -= 음량반영;
+
+    /// <summary>
+    /// 플레이어가 슬라이더를 움직였을 때 지금 나오는 소리에 즉시 반영한다.
+    ///
+    /// 페이드 중이면 그쪽 루프가 매 프레임 TargetVolume을 다시 읽으므로
+    /// 여기서 덮어쓰지 않는다. 덮어쓰면 페이드가 끊겨 툭 튄다.
+    /// </summary>
+    private void 음량반영()
+    {
+        if (페이드중) return;
+
+        if (SourceA != null && SourceA.isPlaying) SourceA.volume = TargetVolume;
+        if (SourceB != null && SourceB.isPlaying) SourceB.volume = TargetVolume;
+    }
+
+    private bool 페이드중;
 
     public void PlayOneShotSE(AudioClip clip, float volume)
     {
@@ -64,6 +95,7 @@ public class BGMManager : MonoBehaviour
                 if (currentPlayingClip == bgmEvent.BGMClip) return;
 
                 currentPlayingClip = bgmEvent.BGMClip;
+                currentBaseVolume = Mathf.Clamp01(bgmEvent.BaseVolume);
                 StartCoroutine(CrossFade(bgmEvent.BGMClip, bgmEvent.FadeDuration));
                 return;
             }
@@ -93,18 +125,26 @@ public class BGMManager : MonoBehaviour
         Next.volume = 0;
         Next.Play();
 
+        페이드중 = true;
+
         float elapsed = 0;
         while (elapsed < Duration)
         {
             elapsed += Time.deltaTime;
             float percent = elapsed / Duration;
-            Active.volume = 1 - percent;
-            Next.volume = percent;
+
+            // 목표 음량을 매 프레임 다시 읽는다. 예전에는 1로 못박아 두어서
+            // 페이드가 끝나는 순간 플레이어가 맞춰둔 음량이 1로 튀어 올랐다.
+            float target = TargetVolume;
+            Active.volume = target * (1 - percent);
+            Next.volume = target * percent;
             yield return null;
         }
 
+        Next.volume = TargetVolume;
         Active.Stop();
         isSourceAActive = !isSourceAActive;
+        페이드중 = false;
     }
 
     /// <summary>
@@ -114,6 +154,7 @@ public class BGMManager : MonoBehaviour
     IEnumerator SingleSourceSwap(AudioClip clip, float Duration)
     {
         float half = Mathf.Max(0.01f, Duration * 0.5f);
+        페이드중 = true;
 
         // 이미 뭔가 나오고 있으면 먼저 줄인다.
         if (SourceA.isPlaying)
@@ -138,9 +179,11 @@ public class BGMManager : MonoBehaviour
         while (e < half)
         {
             e += Time.deltaTime;
-            SourceA.volume = Mathf.Lerp(0f, 1f, e / half);
+            // 크로스페이드와 같은 이유로 목표를 매 프레임 다시 읽는다.
+            SourceA.volume = Mathf.Lerp(0f, TargetVolume, e / half);
             yield return null;
         }
-        SourceA.volume = 1f;
+        SourceA.volume = TargetVolume;
+        페이드중 = false;
     }
 }

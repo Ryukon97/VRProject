@@ -19,3 +19,4 @@ MonoBehaviour:
     BGMIndex: 0
     BGMClip: {fileID: 8300000, guid: 12bc2c189a8bab645b612542be22f5b3, type: 3}
     FadeDuration: 1.5
+    BaseVolume: 0.43

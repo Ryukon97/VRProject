@@ -79,6 +79,21 @@ public class SoundManagerEditor : EditorWindow
             e.BGMIndex = EditorGUILayout.IntField("BGM인덱스", e.BGMIndex);
             e.FadeDuration = EditorGUILayout.Slider("디졸브 시간", e.FadeDuration, 0f, 5f);
 
+            e.BaseVolume = EditorGUILayout.Slider(
+                new GUIContent("기본 음량",
+                    "제작자가 정하는 이 곡의 음량입니다.\n" +
+                    "곡마다 녹음 크기가 달라서 여기서 균형을 먼저 맞춰둡니다.\n\n" +
+                    "실제 재생 음량 = 기본 음량 × 플레이어가 옵션에서 고른 배경음 음량"),
+                e.BaseVolume, 0f, 1f);
+
+            // 실제로 얼마로 나오는지 같이 보여준다.
+            // 두 값을 곱한다는 것을 글로만 적어두면 놓치기 쉽다.
+            float 플레이어값 = VRProject.Sound.SoundSettings.Bgm;
+            EditorGUILayout.LabelField(" ",
+                $"실제 재생 ≈ {e.BaseVolume * 플레이어값:P0}  " +
+                $"(플레이어 설정 {플레이어값:P0} 기준)",
+                EditorStyles.miniLabel);
+
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space(5);
         }

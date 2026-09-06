@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueDataSO
   groups:
   - id: 0
-    GroupName: "\uAE30\uBCF8 \uADF8\uB8F9"
+    GroupName: "\uC544\uB8E8\uB791 \uB370\uC774\uD1A0"
     entries:
     - id: 0
       speakerName: 
@@ -75,7 +75,7 @@ MonoBehaviour:
       dialogueText: "\uC120\uC0DD\uB2D8, \uC7A0\uAE50 \uC2DC\uAC04 \uB418\uC2DC\uB098\uC694? "
       voice: {fileID: 8300000, guid: 600f8323a2731aa49a180aa073712413, type: 3}
       voiceVolume: 1
-      facialExpressionIndex: 2
+      facialExpressionIndex: -1
       playMouthAnimation: 1
       characterIllust: {fileID: 0}
       BackGroundSprit: {fileID: 0}
@@ -83,10 +83,11 @@ MonoBehaviour:
       EffectSound: {fileID: 0}
       seVolune: 0
       choices:
-      - choiceText: "\uBC25\uC744 \uBA39\uC73C\uB7EC \uAC04\uB2E4"
+      - choiceText: "\uC5EC\uAE30\uC11C \uD5E4\uC5B4\uC9C0\uC790\uACE0 \uD55C\uB2E4"
         choiceIndex: 3
         timeline: {fileID: 0}
-      - choiceText: "\uC544\uB8E8\uB791 \uB370\uC774\uD2B8\uB97C\uAC04\uB2E4"
+      - choiceText: "\uC544\uB8E8\uB791 \uBC25\uC744 \uBA39\uC73C\uB7EC\uAC00\uC790\uACE0
+          \uD55C\uB2E4"
         choiceIndex: 3
         timeline: {fileID: 11400000, guid: ff96cccc4048aa949bd847820f381933, type: 2}
       Char1:
@@ -104,11 +105,11 @@ MonoBehaviour:
       nextIndexOverride: -1
     - id: 3
       speakerName: "\uC544\uB8E8"
-      dialogueText: "... \uBB63...! "
-      voice: {fileID: 0}
+      dialogueText: "\uD5E4\uC5D0~ \uC88B\uB124! \uC120\uC0DD\uB2D8!"
+      voice: {fileID: 8300000, guid: 3745edbc8caf13f4a947d84ab3397902, type: 3}
       voiceVolume: 1
       facialExpressionIndex: -1
-      playMouthAnimation: 0
+      playMouthAnimation: 1
       characterIllust: {fileID: 0}
       BackGroundSprit: {fileID: 0}
       showChatUI: 1
@@ -128,4 +129,40 @@ MonoBehaviour:
         CharacterRotation: 0
         moveDuration: 0
       nextIndexOverride: -1
+    - id: 4
+      speakerName: "\uC544\uB8E8"
+      dialogueText: "\uB9C8\uCE68 \uC800\uBC88\uC5D0 \uC54C\uC544\uB454 \uC2DD\uB2F9\uC774
+        \uC788\uB294\uB370 \uAC19\uC774 \uAC08\uAE4C!"
+      voice: {fileID: 8300000, guid: 5b5dad3d6229b714691ca498f1132265, type: 3}
+      voiceVolume: 1
+      facialExpressionIndex: 2
+      playMouthAnimation: 1
+      characterIllust: {fileID: 0}
+      BackGroundSprit: {fileID: 0}
+      showChatUI: 1
+      EffectSound: {fileID: 0}
+      seVolune: 0
+      choices:
+      - choiceText: "\uC88B\uB124 \uC5ED\uC2DC \uBB34\uBC95\uC790\uB2F5\uB124"
+        choiceIndex: 0
+        timeline: {fileID: 0}
+      - choiceText: "\uADF8\uB7FC \uC548\uB0B4\uBD80\uD0C1\uD574"
+        choiceIndex: 0
+        timeline: {fileID: 0}
+      Char1:
+        CharacterPNG: {fileID: 0}
+        CharacterPos: {x: 0, y: 0}
+        CharacterScale: 0
+        CharacterRotation: 0
+        moveDuration: 0
+      Char2:
+        CharacterPNG: {fileID: 0}
+        CharacterPos: {x: 0, y: 0}
+        CharacterScale: 0
+        CharacterRotation: 0
+        moveDuration: 0
+      nextIndexOverride: -1
+  - id: 0
+    GroupName: "\uC0C8 \uADF8\uB8F9"
+    entries: []
   nextStorySO: {fileID: 0}

@@ -97,6 +97,8 @@ public class ChatManager : MonoBehaviour
         if (입모양 == null) 입모양 = FindAnyObjectByType<VRProject.Character.MouthFlap>();
 
         EnsureVoiceSource();
+
+        VRProject.Sound.SoundSettings.Changed += 더빙음량반영;
     }
 
     /// <summary>
@@ -161,6 +163,8 @@ public class ChatManager : MonoBehaviour
     {
         if (vrAdvanceAction != null && vrAdvanceAction.action != null)
             vrAdvanceAction.action.Disable();
+
+        VRProject.Sound.SoundSettings.Changed -= 더빙음량반영;
     }
 
     void Start()
@@ -296,8 +300,26 @@ public class ChatManager : MonoBehaviour
         if (entry.voice == null) return;
 
         voiceSource.clip = entry.voice;
-        voiceSource.volume = Mathf.Clamp01(entry.voiceVolume);
+
+        // 제작자가 대사마다 잡아둔 음량 × 플레이어가 옵션에서 고른 더빙 음량.
+        // 곱해서 쓰므로 플레이어가 전체를 줄여도 대사들 사이의 균형은 유지된다.
+        voiceSource.volume = Mathf.Clamp01(entry.voiceVolume) * VRProject.Sound.SoundSettings.Voice;
         voiceSource.Play();
+    }
+
+    /// <summary>
+    /// 재생 중인 대사에 바뀐 음량을 즉시 반영한다.
+    ///
+    /// 옵션을 대화 도중에도 열 수 있으므로, 슬라이더를 움직이면 지금 나오는
+    /// 목소리부터 바뀌어야 한다. 다음 대사를 기다리게 하면 맞추기 어렵다.
+    /// </summary>
+    void 더빙음량반영()
+    {
+        if (voiceSource == null || !voiceSource.isPlaying) return;
+        if (currentEntry == null) return;
+
+        voiceSource.volume = Mathf.Clamp01(currentEntry.voiceVolume)
+                             * VRProject.Sound.SoundSettings.Voice;
     }
 
     /// <summary>
