@@ -53,6 +53,12 @@ public class DialogueEntry
     public string speakerName;
     [TextArea(3, 10)]
     public string dialogueText;
+    [Header("보이스 (WAV). 이 대사가 시작될 때 바로 재생됩니다")]
+    public AudioClip voice;
+
+    [Header("보이스 음량")]
+    [Range(0f, 1f)] public float voiceVolume = 1f;
+
     [Header("표정 번호 (FacialExpression의 표정목록 순번). -1이면 기본 표정으로 되돌립니다")]
     public int facialExpressionIndex = -1;
 

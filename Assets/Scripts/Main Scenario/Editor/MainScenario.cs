@@ -201,6 +201,35 @@ public class MainScenario : EditorWindow
 
                             EditorGUILayout.Space(5);
 
+                            // 보이스. 대사 바로 아래가 자연스럽다.
+                            EditorGUILayout.LabelField("보이스", EditorStyles.boldLabel);
+
+                            SerializedProperty voiceProp = element.FindPropertyRelative("voice");
+                            EditorGUILayout.PropertyField(
+                                voiceProp,
+                                new GUIContent("보이스 (WAV)",
+                                    "이 대사가 시작될 때 바로 재생됩니다.\n" +
+                                    "다음 대사로 넘어가면 재생 중이던 보이스는 끊깁니다.\n" +
+                                    "비워두면 아무 소리도 나지 않습니다."));
+
+                            // 음량은 보이스가 있을 때만 보여준다. 빈 칸이 늘어나면
+                            // 대사 목록이 길어져서 훑어보기 어려워진다.
+                            if (voiceProp != null && voiceProp.objectReferenceValue != null)
+                            {
+                                EditorGUILayout.PropertyField(
+                                    element.FindPropertyRelative("voiceVolume"),
+                                    new GUIContent("보이스 음량"));
+
+                                var clip = voiceProp.objectReferenceValue as AudioClip;
+                                if (clip != null)
+                                {
+                                    EditorGUILayout.LabelField(" ", $"길이 {clip.length:F2}초",
+                                                               EditorStyles.miniLabel);
+                                }
+                            }
+
+                            EditorGUILayout.Space(5);
+
                             // 표정과 입모양. 얼굴 연출이라 붙여둔다.
                             EditorGUILayout.LabelField("얼굴 연출", EditorStyles.boldLabel);
 

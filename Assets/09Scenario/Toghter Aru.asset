@@ -20,6 +20,8 @@ MonoBehaviour:
       speakerName: 
       dialogueText: "\uC624\uB298\uC740 \uC544\uB8E8\uC640 \uB2E8 \uB458\uC774\uC11C
         \uC784\uBB34\uB97C \uC218\uD589\uD558\uC600\uB2E4"
+      voice: {fileID: 0}
+      voiceVolume: 1
       facialExpressionIndex: -1
       playMouthAnimation: 0
       characterIllust: {fileID: 0}
@@ -45,6 +47,8 @@ MonoBehaviour:
       speakerName: 
       dialogueText: "\uADF8\uB7F0\uB370 \uC784\uBB34\uAC00 \uB108\uBB34 \uBE60\uB974\uAC8C
         \uB05D\uB0AC\uB2E4...."
+      voice: {fileID: 0}
+      voiceVolume: 1
       facialExpressionIndex: -1
       playMouthAnimation: 0
       characterIllust: {fileID: 0}
@@ -68,8 +72,9 @@ MonoBehaviour:
       nextIndexOverride: -1
     - id: 2
       speakerName: "\uC544\uB8E8"
-      dialogueText: "\uC120\uC0DD\uC774\uB791 \uD558\uB294\uAC70\uBA74 \uBB50\uB4E0
-        \uD560\uC790\uC2E0\uC788\uC5B4"
+      dialogueText: "\uC120\uC0DD\uB2D8, \uC7A0\uAE50 \uC2DC\uAC04 \uB418\uC2DC\uB098\uC694? "
+      voice: {fileID: 8300000, guid: 600f8323a2731aa49a180aa073712413, type: 3}
+      voiceVolume: 1
       facialExpressionIndex: 2
       playMouthAnimation: 1
       characterIllust: {fileID: 0}
@@ -100,6 +105,8 @@ MonoBehaviour:
     - id: 3
       speakerName: "\uC544\uB8E8"
       dialogueText: "... \uBB63...! "
+      voice: {fileID: 0}
+      voiceVolume: 1
       facialExpressionIndex: -1
       playMouthAnimation: 0
       characterIllust: {fileID: 0}

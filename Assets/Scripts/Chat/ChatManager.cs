@@ -45,6 +45,27 @@ public class ChatManager : MonoBehaviour
     [Tooltip("타임라인 재생 중 대사 진행을 멈출지. 보통 켜둔다.")]
     public bool pauseDuringTimeline = true;
 
+    [Header("보이스")]
+    [Tooltip("대사 보이스를 재생할 AudioSource.\n" +
+             "비워두면 아래 설정에 맞춰 자동으로 만든다.")]
+    public AudioSource voiceSource;
+
+    [Tooltip("보이스를 캐릭터 입 위치에서 3D로 재생한다.\n\n" +
+             "끄면 어디를 보든 같은 크기로 들리는 2D가 된다.\n" +
+             "나레이션처럼 화자가 화면에 없는 대사가 많으면 끄는 편이 낫다.")]
+    public bool voice3D = true;
+
+    [Tooltip("보이스가 나올 위치. 비워두면 캐릭터의 Head 본을 찾는다.")]
+    public Transform voiceAnchor;
+
+    [Tooltip("이 거리(m) 안에서는 최대 음량으로 들린다.\n\n" +
+             "이 씬은 월드가 2배 스케일이라, 체감 1m는 월드 2m다.\n" +
+             "거리 값도 그만큼 키워 잡아야 한다.")]
+    [Range(0.5f, 20f)] public float voiceMinDistance = 2f;
+
+    [Tooltip("이 거리(m)를 넘으면 들리지 않는다.")]
+    [Range(2f, 200f)] public float voiceMaxDistance = 30f;
+
     [Header("얼굴 연출")]
     [Tooltip("대사의 '표정 번호'를 적용할 컴포넌트.\n비워두면 씬에서 자동으로 찾는다.")]
     public VRProject.Character.FacialExpression 표정;
@@ -74,6 +95,66 @@ public class ChatManager : MonoBehaviour
         // 인스펙터로 잇는 것을 잊기 쉽다. 비어 있으면 씬에서 찾아 쓴다.
         if (표정 == null) 표정 = FindAnyObjectByType<VRProject.Character.FacialExpression>();
         if (입모양 == null) 입모양 = FindAnyObjectByType<VRProject.Character.MouthFlap>();
+
+        EnsureVoiceSource();
+    }
+
+    /// <summary>
+    /// 보이스 전용 AudioSource를 마련한다.
+    ///
+    /// BGMManager.PlayOneShotSE는 PlayClipAtPoint를 쓰는데, 그건 임시 오브젝트를
+    /// 만들어 재생하고 끝날 때까지 손댈 수 없다. 대사를 넘겼는데 이전 보이스가
+    /// 계속 들리면 곤란하므로, 멈출 수 있는 전용 소스를 따로 쓴다.
+    /// </summary>
+    void EnsureVoiceSource()
+    {
+        if (voiceSource == null)
+        {
+            // 3D면 소리가 캐릭터 입에서 나야 하므로 그쪽에 붙인다.
+            // 2D는 위치가 의미 없으니 자기 자신에 둔다.
+            Transform 붙일곳 = voice3D ? (voiceAnchor != null ? voiceAnchor : 머리찾기()) : transform;
+            voiceSource = 붙일곳.gameObject.AddComponent<AudioSource>();
+        }
+
+        voiceSource.playOnAwake = false;
+        voiceSource.loop = false;
+
+        voiceSource.spatialBlend = voice3D ? 1f : 0f;
+
+        // spatialize를 켜야 스페셜라이저 플러그인이 이 소스를 처리한다.
+        // spatialBlend만 1로 올리면 Unity 기본 좌우 패닝에 그친다.
+        voiceSource.spatialize = voice3D;
+        voiceSource.spatializePostEffects = false;
+
+        voiceSource.rolloffMode = AudioRolloffMode.Logarithmic;
+        voiceSource.minDistance = voiceMinDistance;
+        voiceSource.maxDistance = Mathf.Max(voiceMaxDistance, voiceMinDistance + 0.1f);
+
+        // 도플러는 반드시 끈다.
+        //
+        // VR 텔레포트는 한 프레임에 수십 미터를 순간이동하는데, 도플러가 켜져 있으면
+        // 그 순간 속도를 엄청나게 계산해서 목소리 음정이 괴상하게 튄다.
+        // 대사에는 도플러가 줄 이득이 없다.
+        voiceSource.dopplerLevel = 0f;
+    }
+
+    /// <summary>
+    /// 보이스가 나올 자리를 찾는다.
+    ///
+    /// 입 위치가 가장 정확하지만 입 본이 따로 없는 모델이라 Head 본을 쓴다.
+    /// 그것도 없으면 캐릭터 루트, 그마저 없으면 자기 자신으로 물러선다.
+    /// </summary>
+    Transform 머리찾기()
+    {
+        // Unity 오브젝트는 파괴된 뒤에도 ??가 null로 안 잡히므로 명시적으로 비교한다.
+        Component 캐릭터 = 표정 != null ? (Component)표정 : 입모양;
+        if (캐릭터 == null) return transform;
+
+        foreach (Transform t in 캐릭터.GetComponentsInChildren<Transform>(true))
+        {
+            if (t.name == "Head" || t.name == "頭") return t;
+        }
+        return 캐릭터.transform;
     }
 
     void OnDisable()
@@ -136,6 +217,7 @@ public class ChatManager : MonoBehaviour
             if (ChatImage != null)
                 ChatImage.gameObject.SetActive(currentEntry.showChatUI);
 
+            PlayVoice(currentEntry);
             ApplyFace(currentEntry);
 
             yield return StartCoroutine(NormalChatOnlyText(currentEntry.speakerName, currentEntry.dialogueText));
@@ -179,6 +261,9 @@ public class ChatManager : MonoBehaviour
 
             if (currentEntry == null)
             {
+                // 마지막 대사의 보이스가 다음 챕터까지 넘어가지 않게 여기서 끊는다.
+                if (voiceSource != null) voiceSource.Stop();
+
                 Debug.Log("<color=yellow>시나리오가 끝났습니다!</color>");
 
                 ScenarioController controller = FindAnyObjectByType<ScenarioController>();
@@ -191,6 +276,29 @@ public class ChatManager : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// 대사 한 줄의 보이스를 재생한다.
+    ///
+    /// 보이스가 없는 대사에서도 항상 먼저 Stop을 부른다. 그래야 앞 대사의 보이스가
+    /// 다음 대사까지 물고 늘어지지 않는다. 대사를 빨리 넘길 때 목소리가 겹쳐서
+    /// 들리는 것이 이걸 빠뜨렸을 때 나오는 증상이다.
+    /// </summary>
+    void PlayVoice(DialogueEntry entry)
+    {
+        if (entry == null) return;
+
+        EnsureVoiceSource();
+        if (voiceSource == null) return;
+
+        voiceSource.Stop();
+
+        if (entry.voice == null) return;
+
+        voiceSource.clip = entry.voice;
+        voiceSource.volume = Mathf.Clamp01(entry.voiceVolume);
+        voiceSource.Play();
+    }
 
     /// <summary>
     /// 대사 한 줄의 얼굴 연출을 적용한다.
