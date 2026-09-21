@@ -10,7 +10,7 @@ Material:
   m_Name: Morph_Parts_d
   m_Shader: {fileID: 4800000, guid: e21a931574fccc449b7186cdeebaff3d, type: 3}
   m_Parent: {fileID: 2100000, guid: 49dc10f241e069d479bf892ba3543a6f, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 16
   m_ValidKeywords:
   - _CHARACTERLIGHT_ON
   - _SURFACE_TYPE_TRANSPARENT
@@ -18,7 +18,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS

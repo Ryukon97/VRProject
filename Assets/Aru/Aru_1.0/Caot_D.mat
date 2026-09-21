@@ -134,7 +134,7 @@ Material:
     - _ReceiveShadowStrength: 1
     - _ReceiveShadows: 1
     - _RimIntensity: 0.2
-    - _RimLightAlign: 0.6
+    - _RimLightAlign: 0
     - _RimPower: 6
     - _SecondStep: 1
     - _ShadowFeather: 0.001
@@ -142,9 +142,9 @@ Material:
     - _ShadowThreshold2: 0.134
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
-    - _SpecFeather: 0.08
+    - _SpecFeather: 0.001
     - _SpecIntensity: 1
-    - _SpecPower: 40
+    - _SpecPower: 128
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
@@ -164,6 +164,6 @@ Material:
     - _ShadowTint: {r: 0.72, g: 0.7, b: 0.86, a: 1}
     - _ShadowTint2: {r: 0.55, g: 0.53, b: 0.72, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SpecColor2: {r: 1, g: 1, b: 1, a: 1}
+    - _SpecColor2: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
