@@ -46,6 +46,9 @@ namespace VRProject.Flow
         /// <summary>GameStart 버튼의 OnClick에 연결한다.</summary>
         public void GameStart()
         {
+            // 타이틀에서 조절한 배경음·더빙 음량을 씬 전환 전에 확정한다.
+            // 옵션 패널이 열린 상태에서 바로 시작해도 다음 씬이 같은 값을 사용한다.
+            VRProject.Sound.SoundSettings.Save();
             씬이동(씬이름);
         }
 

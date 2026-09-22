@@ -1,0 +1,341 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd63ed5494271e14d9b35d236d5d0cca, type: 3}
+  m_Name: Toghter Aru
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueDataSO
+  groups:
+  - id: 0
+    GroupName: 다음 약속은 의뢰가 아니야
+    entries:
+    - id: 0
+      speakerName: ""
+      dialogueText: 오늘은 아루와 함께 의뢰를 수행했다.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 1
+      speakerName: ""
+      dialogueText: 예상보다 일이 빨리 끝나자, 아루는 만족스러운 표정으로 선생님을 바라보았다.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 2
+      speakerName: 아루
+      dialogueText: 후후, 어때 선생님? 흥신소 68 사장의 완벽한 일 처리였지?
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 1
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 3
+      speakerName: 아루
+      dialogueText: 이 정도 의뢰라면 처음부터 나 혼자서도 충분했지만… 특별히 선생님에게 활약할 기회를 준 거야.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 3
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 4
+      speakerName: 아루
+      dialogueText: 그런데 아직 시간이 꽤 남았네. 선생님, 오늘 다른 일정은 있어?
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 5
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 5
+      speakerName: 아루
+      dialogueText: 없다면… 근처에서 저녁이라도 같이 먹지 않을래? 물론 이것도 작전 회의의 일부야.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 1
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices:
+      - choiceText: 좋아. 같이 가자.
+        choiceIndex: 6
+        timeline: {fileID: 11400000, guid: ff96cccc4048aa949bd847820f381933, type: 2}
+      - choiceText: 그거 데이트 신청이야?
+        choiceIndex: 7
+        timeline: {fileID: 0}
+      nextIndexOverride: -1
+    - id: 6
+      speakerName: 아루
+      dialogueText: 역시 선생님은 이야기가 빠르다니까! 내가 좋은 곳을 알아뒀어.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 2
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: 9
+    - id: 7
+      speakerName: 아루
+      dialogueText: 데, 데이트?! 그런 의미로 말한 게 아니거든!
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 6
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 8
+      speakerName: 아루
+      dialogueText: 유능한 동업자끼리 정보를 교환하는 자리야. 그러니까… 데이트와는 전혀 달라!
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 3
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: 9
+    - id: 9
+      speakerName: ""
+      dialogueText: 아루가 골목 밖으로 걸음을 옮기려던 순간, 휴대전화가 짧게 울렸다.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 10
+      speakerName: 아루
+      dialogueText: 지금 중요한 작전 회의 중인데… 대체 누구야?
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 4
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 11
+      speakerName: 아루
+      dialogueText: 무츠키? 잠깐만, 선생님. 금방 끝낼게.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 4
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 12
+      speakerName: 무츠키(전화)
+      dialogueText: 아루쨩, 큰일 났어. 하루카가 새 사무실 후보를 정리하다가 건물 경보를 울려 버렸어.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 13
+      speakerName: 아루
+      dialogueText: 경보? 잠깐, 정리하다가 왜 경보가 울리는 건데?
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 6
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 14
+      speakerName: 무츠키(전화)
+      dialogueText: 그게 말이지, 하루카가 “방해되는 벽을 치우겠습니다”라고 하더니 장비를 꺼냈거든.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 15
+      speakerName: 하루카(전화)
+      dialogueText: 아루님! 걱정하지 마십시오! 이번에는 폭발 범위를 정확하게 계산했습니다!
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 16
+      speakerName: 아루
+      dialogueText: 이번에는?! 무츠키, 당장 하루카부터 멈춰! 내가 지금 갈게!
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 6
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 17
+      speakerName: ""
+      dialogueText: 전화를 끊은 아루는 곧바로 뛰어가려다, 선생님이 곁에 있다는 것을 떠올리고 멈춰 섰다.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 18
+      speakerName: 아루
+      dialogueText: 미안해, 선생님. 오늘 식사는 아무래도 다음으로 미뤄야 할 것 같아.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 5
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 19
+      speakerName: 아루
+      dialogueText: 사장이 자리를 비운 사이에 회사가 사라지면 곤란하니까.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 3
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 20
+      speakerName: 아루
+      dialogueText: 별일 아닐 거야. 내가 가면 금방 해결할 수 있어.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 1
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices:
+      - choiceText: 나도 같이 갈게.
+        choiceIndex: 21
+        timeline: {fileID: 0}
+      - choiceText: 그럼 다음 약속을 먼저 잡자.
+        choiceIndex: 23
+        timeline: {fileID: 11400000, guid: ff96cccc4048aa949bd847820f381933, type: 2}
+      nextIndexOverride: -1
+    - id: 21
+      speakerName: 아루
+      dialogueText: 선생님까지 올 필요는 없어. 이건 흥신소 68의 사장인 내가 해결해야 할 일이야.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 10
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 22
+      speakerName: 아루
+      dialogueText: 그래도… 같이 가겠다고 말해 줘서 고마워. 그 말만으로 충분해.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 1
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: 25
+    - id: 23
+      speakerName: 아루
+      dialogueText: 다음 약속? 그건 의뢰도 작전 회의도 아닌데?
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 6
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 24
+      speakerName: 아루
+      dialogueText: …좋아. 다음에는 방해받지 않을 장소로 내가 직접 정해 둘게. 기대해도 좋아.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 2
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: 25
+    - id: 25
+      speakerName: 아루
+      dialogueText: 오늘은 여기서 헤어져야겠네.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 5
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 26
+      speakerName: 아루
+      dialogueText: 하지만 약속은 약속이야. 흥신소 68의 사장은 한 번 한 약속을 절대 어기지 않으니까.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 1
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 27
+      speakerName: 아루
+      dialogueText: 다음에는… 의뢰가 없어도 만나러 와 줘, 선생님.
+      voice: {fileID: 0}
+      voiceVolume: 0.85
+      facialExpressionIndex: 1
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 28
+      speakerName: ""
+      dialogueText: 아루는 몇 걸음 뛰어가다가 다시 뒤를 돌아보았다.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 29
+      speakerName: 아루
+      dialogueText: 그리고 오늘 함께해 줘서 고마워! 다음에는 내가 꼭 살게!
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: 2
+      playMouthAnimation: 1
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+    - id: 30
+      speakerName: ""
+      dialogueText: 아루는 골목 너머로 달려갔다. 휴대전화 너머에서는 다시 무츠키의 웃음소리와 하루카의 다급한 목소리가 들렸다.
+      voice: {fileID: 0}
+      voiceVolume: 1
+      facialExpressionIndex: -1
+      playMouthAnimation: 0
+      showChatUI: 1
+      choices: []
+      nextIndexOverride: -1
+  nextStorySO: {fileID: 0}

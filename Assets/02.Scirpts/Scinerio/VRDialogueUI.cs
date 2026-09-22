@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace VRProject.Dialogue
 {
@@ -108,7 +110,31 @@ namespace VRProject.Dialogue
         private void OnEnable()
         {
             canvas = GetComponent<Canvas>();
+            if (Application.isPlaying) XR입력확인();
             SnapToTarget();
+        }
+
+        private void XR입력확인()
+        {
+            if (GetComponent<TrackedDeviceGraphicRaycaster>() == null)
+                gameObject.AddComponent<TrackedDeviceGraphicRaycaster>();
+
+            EventSystem eventSystem = FindAnyObjectByType<EventSystem>();
+            if (eventSystem == null)
+            {
+                Debug.LogError("[VRDialogueUI] EventSystem이 없어 VR 선택지를 누를 수 없습니다.", this);
+                return;
+            }
+
+            if (eventSystem.GetComponent<XRUIInputModule>() != null) return;
+
+            BaseInputModule 기존입력 = eventSystem.GetComponent<BaseInputModule>();
+            if (기존입력 != null) Destroy(기존입력);
+            eventSystem.gameObject.AddComponent<XRUIInputModule>();
+
+            Debug.LogWarning(
+                "[VRDialogueUI] 일반 UI 입력 모듈을 XRUIInputModule로 자동 교체했습니다.",
+                eventSystem);
         }
 
         private void LateUpdate()

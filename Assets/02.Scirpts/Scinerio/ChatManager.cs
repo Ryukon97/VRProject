@@ -30,12 +30,26 @@ public class ChatManager : MonoBehaviour
 
     public bool isPausedByMenu = false;
     private int nextIDResult = -1;
+    private float 선택입력허용시간;
+
+    [Header("VR: 선택지 위치")]
+    [Tooltip("선택지가 열렸을 때 눈에서 떨어질 거리(m). 컨트롤러보다 앞에 놓이도록 1.5m를 권장합니다.")]
+    [SerializeField, Range(0.8f, 3f)] private float 선택지거리 = 1.5f;
+
+    [Tooltip("멀어진 선택지가 너무 작아지지 않도록 ChoicePanel만 키우는 배율입니다.")]
+    [SerializeField, Range(1f, 3f)] private float 선택지크기배율 = 2f;
+
+    private VRProject.Dialogue.VRDialogueUI 선택지대화UI;
+    private float 선택지전거리;
+    private Vector3 선택지전크기;
+    private bool 선택지배치변경중;
 
     // ── VR 확장 ─────────────────────────────────────────────────
     [Header("VR: 다음 대사 입력")]
     [Tooltip("Quest 컨트롤러의 A/B/X/Y를 묶은 InputAction.\n" +
-             "비워두면 마우스·키보드만 동작한다(에디터 테스트용).")]
+             "비워두면 실행 중 A/B/X/Y 입력을 자동으로 만들어 사용한다.")]
     public UnityEngine.InputSystem.InputActionReference vrAdvanceAction;
+    private UnityEngine.InputSystem.InputAction 자동VR넘김액션;
 
     [Header("VR: 선택지 타임라인")]
     [Tooltip("ChoiceData.timeline을 재생할 씬의 PlayableDirector.\n" +
@@ -76,6 +90,19 @@ public class ChatManager : MonoBehaviour
     [Tooltip("대사의 표정 번호가 -1일 때 되돌릴 표정 번호.\n" +
              "보통 0(기본)이다. 표정 목록의 순서를 바꿨다면 여기도 맞출 것.")]
     public int 기본표정번호 = 0;
+    private Coroutine 입모양음성동기루틴;
+
+    [Header("전신 애니메이션")]
+    [Tooltip("시나리오의 전신 애니메이션을 재생할 아루의 Animator. 비워두면 자동으로 찾습니다.")]
+    public Animator bodyAnimator;
+
+    [Tooltip("전신 연출이 끝난 뒤 돌아갈 Animator 상태 이름")]
+    public string bodyIdleStateName = "Standing Idle";
+
+    [Range(0f, 1f)] public float bodyAnimationBlendTime = 0.15f;
+    private Coroutine bodyAnimationRoutine;
+    private bool 타임라인발고정중;
+    private float 타임라인바닥발높이;
 
     [Header("타이핑")]
     [Tooltip("글자 하나가 찍히는 간격(초). 작을수록 빠르다.")]
@@ -89,12 +116,40 @@ public class ChatManager : MonoBehaviour
     void OnEnable()
     {
         if (vrAdvanceAction != null && vrAdvanceAction.action != null)
+        {
             vrAdvanceAction.action.Enable();
+        }
+        else
+        {
+            // 씬이나 프리팹의 InputActionReference가 빠져도 Quest에서 대사가
+            // 막히지 않도록 A/B/X/Y 입력을 런타임에 직접 만든다.
+            자동VR넘김액션 = new UnityEngine.InputSystem.InputAction(
+                "DialogueAdvanceFallback",
+                UnityEngine.InputSystem.InputActionType.Button);
+            자동VR넘김액션.AddBinding("<XRController>{RightHand}/primaryButton");
+            자동VR넘김액션.AddBinding("<XRController>{RightHand}/secondaryButton");
+            자동VR넘김액션.AddBinding("<XRController>{LeftHand}/primaryButton");
+            자동VR넘김액션.AddBinding("<XRController>{LeftHand}/secondaryButton");
+            자동VR넘김액션.Enable();
+
+            Debug.LogWarning(
+                "<color=orange>[ChatManager] VR Advance Action이 비어 있어 " +
+                "Quest A/B/X/Y 자동 입력을 사용합니다.</color>", this);
+        }
 
         // 표정과 입모양은 캐릭터에 붙어 있고 ChatManager는 UI 쪽에 있어서
         // 인스펙터로 잇는 것을 잊기 쉽다. 비어 있으면 씬에서 찾아 쓴다.
         if (표정 == null) 표정 = FindAnyObjectByType<VRProject.Character.FacialExpression>();
         if (입모양 == null) 입모양 = FindAnyObjectByType<VRProject.Character.MouthFlap>();
+        if (bodyAnimator == null)
+        {
+            if (표정 != null) bodyAnimator = 표정.GetComponentInParent<Animator>();
+            if (bodyAnimator == null)
+            {
+                var follow = FindAnyObjectByType<VRProject.Character.CharacterFollow>();
+                if (follow != null) bodyAnimator = follow.GetComponentInChildren<Animator>();
+            }
+        }
 
         EnsureVoiceSource();
 
@@ -161,10 +216,27 @@ public class ChatManager : MonoBehaviour
 
     void OnDisable()
     {
+        타임라인발고정중 = false;
+        선택지배치복원();
+
         if (vrAdvanceAction != null && vrAdvanceAction.action != null)
             vrAdvanceAction.action.Disable();
 
+        if (자동VR넘김액션 != null)
+        {
+            자동VR넘김액션.Disable();
+            자동VR넘김액션.Dispose();
+            자동VR넘김액션 = null;
+        }
+
         VRProject.Sound.SoundSettings.Changed -= 더빙음량반영;
+
+        if (입모양음성동기루틴 != null)
+        {
+            StopCoroutine(입모양음성동기루틴);
+            입모양음성동기루틴 = null;
+        }
+        if (입모양 != null) 입모양.재생중지();
     }
 
     void Start()
@@ -223,13 +295,14 @@ public class ChatManager : MonoBehaviour
 
             PlayVoice(currentEntry);
             ApplyFace(currentEntry);
+            ApplyBodyAnimation(currentEntry);
 
             yield return StartCoroutine(NormalChatOnlyText(currentEntry.speakerName, currentEntry.dialogueText));
 
-            // 글자가 다 찍히면 말이 끝난 것이므로 입을 닫는다.
-            // MouthFlap 자체에도 최대 재생시간이 걸려 있지만, 그건 신호를 놓쳤을 때를
-            // 대비한 안전장치다. 평소에는 이쪽에서 대사 길이에 맞춰 멈춘다.
-            if (입모양 != null) 입모양.재생중지();
+            // 보이스가 없는 대사는 기존처럼 타이핑이 끝날 때 입을 닫는다.
+            // 보이스가 있으면 아래 음성 동기 루틴이 AudioSource의 실제 종료 시점에 닫는다.
+            if (입모양음성동기루틴 == null && 입모양 != null)
+                입모양.재생중지();
 
             yield return StartCoroutine(WaitForInput());
 
@@ -238,6 +311,13 @@ public class ChatManager : MonoBehaviour
             if (currentEntry.choices != null && currentEntry.choices.Count > 0)
             {
                 yield return StartCoroutine(ShowScenarioChoices(currentEntry.choices));
+                // 선택지 UI 오류로 자식 코루틴이 중단된 경우 -1을 엔딩으로
+                // 해석하지 않는다. 현재 대사에서 멈춰 원인을 보존한다.
+                if (nextIDResult == -1)
+                {
+                    Debug.LogError("[ChatManager] 선택 결과가 없어 대화를 현재 ID에서 멈춥니다.", this);
+                    yield break;
+                }
                 nextID = nextIDResult;
             }
             else if (currentEntry.nextIndexOverride != -1)
@@ -267,6 +347,12 @@ public class ChatManager : MonoBehaviour
             {
                 // 마지막 대사의 보이스가 다음 챕터까지 넘어가지 않게 여기서 끊는다.
                 if (voiceSource != null) voiceSource.Stop();
+                if (입모양음성동기루틴 != null)
+                {
+                    StopCoroutine(입모양음성동기루틴);
+                    입모양음성동기루틴 = null;
+                }
+                if (입모양 != null) 입모양.재생중지();
 
                 Debug.Log("<color=yellow>시나리오가 끝났습니다!</color>");
 
@@ -334,6 +420,11 @@ public class ChatManager : MonoBehaviour
     {
         if (entry == null) return;
 
+        // 씬 로딩 때 ChatManager가 캐릭터보다 먼저 켜지면 OnEnable의 자동 검색은
+        // 한 번 실패할 수 있다. 실제 대사를 적용하는 시점에 다시 찾아 연결한다.
+        if (표정 == null) 표정 = FindAnyObjectByType<VRProject.Character.FacialExpression>();
+        if (입모양 == null) 입모양 = FindAnyObjectByType<VRProject.Character.MouthFlap>();
+
         if (표정 != null)
         {
             int index = entry.facialExpressionIndex >= 0
@@ -367,8 +458,101 @@ public class ChatManager : MonoBehaviour
             return;
         }
 
-        if (entry.playMouthAnimation) 입모양.재생시작();
-        else 입모양.재생중지();
+        if (입모양음성동기루틴 != null)
+        {
+            StopCoroutine(입모양음성동기루틴);
+            입모양음성동기루틴 = null;
+        }
+
+        if (entry.playMouthAnimation)
+        {
+            if (entry.voice != null && voiceSource != null && voiceSource.isPlaying)
+            {
+                입모양.음성동기재생시작();
+                입모양음성동기루틴 = StartCoroutine(음성이끝나면입닫기(entry));
+            }
+            else
+            {
+                입모양.재생시작();
+            }
+        }
+        else
+        {
+            입모양.재생중지();
+        }
+    }
+
+    void LateUpdate()
+    {
+        // Animator와 Timeline의 포즈 계산이 끝난 뒤 보정해야 화면에 내려간 프레임이
+        // 한 장이라도 보이지 않는다. 코루틴 안에서 고치면 평가 순서에 따라 늦을 수 있다.
+        if (타임라인발고정중)
+            타임라인발높이보정();
+    }
+
+    IEnumerator 음성이끝나면입닫기(DialogueEntry entry)
+    {
+        // PlayVoice에서 같은 프레임에 시작된 AudioSource가 실제 재생 상태를
+        // 반영할 때까지 한 프레임 기다린다.
+        yield return null;
+
+        while (currentEntry == entry && voiceSource != null && voiceSource.isPlaying)
+            yield return null;
+
+        // 다음 대사가 이미 시작됐다면 그 대사의 입모양을 건드리지 않는다.
+        if (currentEntry == entry && 입모양 != null)
+            입모양.재생중지();
+
+        입모양음성동기루틴 = null;
+    }
+
+    void ApplyBodyAnimation(DialogueEntry entry)
+    {
+        if (entry == null || entry.bodyAnimation == null) return;
+
+        if (bodyAnimator == null)
+        {
+            Debug.LogWarning(
+                $"<color=orange>[ChatManager] ID {entry.id}에 전신 애니메이션이 있지만 " +
+                "재생할 Animator를 찾지 못했습니다.</color>", this);
+            return;
+        }
+
+        string stateName = string.IsNullOrWhiteSpace(entry.bodyAnimationStateName)
+            ? entry.bodyAnimation.name
+            : entry.bodyAnimationStateName;
+
+        if (!bodyAnimator.HasState(0, Animator.StringToHash(stateName)))
+        {
+            Debug.LogWarning(
+                $"<color=orange>[ChatManager] ID {entry.id}: Animator에 '{stateName}' 상태가 없습니다.</color>",
+                bodyAnimator);
+            return;
+        }
+
+        if (bodyAnimationRoutine != null)
+        {
+            StopCoroutine(bodyAnimationRoutine);
+            bodyAnimationRoutine = null;
+        }
+
+        bodyAnimator.CrossFadeInFixedTime(stateName, bodyAnimationBlendTime, 0);
+
+        if (entry.returnToIdleAfterBodyAnimation)
+            bodyAnimationRoutine = StartCoroutine(ReturnBodyToIdle(entry.bodyAnimation.length));
+    }
+
+    IEnumerator ReturnBodyToIdle(float clipLength)
+    {
+        yield return new WaitForSeconds(Mathf.Max(0.01f, clipLength));
+
+        if (bodyAnimator != null &&
+            bodyAnimator.HasState(0, Animator.StringToHash(bodyIdleStateName)))
+        {
+            bodyAnimator.CrossFadeInFixedTime(bodyIdleStateName, bodyAnimationBlendTime, 0);
+        }
+
+        bodyAnimationRoutine = null;
     }
 
     public DialogueEntry GetEntryById(int targetID)
@@ -380,9 +564,104 @@ public class ChatManager : MonoBehaviour
         }
         return null;
     }
+
+    private bool 선택지UI확보()
+    {
+        if (choicePanel == null)
+        {
+            foreach (Transform t in Resources.FindObjectsOfTypeAll<Transform>())
+            {
+                if (t.gameObject.scene.IsValid() && t.name == "ChoicePanel")
+                {
+                    choicePanel = t.gameObject;
+                    break;
+                }
+            }
+        }
+
+        if (choicePanel == null) return false;
+
+        bool 비어있음 = choiceButtonsText == null || choiceButtonsText.Length == 0;
+        if (!비어있음)
+        {
+            foreach (TextMeshProUGUI text in choiceButtonsText)
+            {
+                if (text == null) { 비어있음 = true; break; }
+            }
+        }
+
+        if (!비어있음) return true;
+
+        var 찾은텍스트 = new List<TextMeshProUGUI>();
+        foreach (Button button in choicePanel.GetComponentsInChildren<Button>(true))
+        {
+            TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (text != null)
+                찾은텍스트.Add(text);
+        }
+
+        찾은텍스트.Sort((a, b) =>
+            a.GetComponentInParent<Button>().transform.GetSiblingIndex().CompareTo(
+                b.GetComponentInParent<Button>().transform.GetSiblingIndex()));
+
+        choiceButtonsText = 찾은텍스트.ToArray();
+        return choiceButtonsText.Length > 0;
+    }
+
+    private void 선택지배치적용()
+    {
+        if (choicePanel == null || 선택지배치변경중) return;
+
+        선택지대화UI = choicePanel.GetComponentInParent<VRProject.Dialogue.VRDialogueUI>();
+        선택지전크기 = choicePanel.transform.localScale;
+
+        // 기존 대화창은 가까운 위치를 유지하되, 선택 중에는 컨트롤러보다 앞에 둔다.
+        // 0.5m 부근은 손/레이 시작점보다 안쪽이라 보이면서도 누를 수 없는 경우가 있다.
+        if (선택지대화UI != null)
+        {
+            선택지전거리 = 선택지대화UI.거리설정;
+            선택지대화UI.거리설정 = Mathf.Max(선택지전거리, 선택지거리);
+            선택지대화UI.SnapToTarget();
+        }
+
+        choicePanel.transform.localScale = 선택지전크기 * 선택지크기배율;
+        선택지배치변경중 = true;
+        Canvas.ForceUpdateCanvases();
+    }
+
+    private void 선택지배치복원()
+    {
+        if (!선택지배치변경중) return;
+
+        if (choicePanel != null)
+            choicePanel.transform.localScale = 선택지전크기;
+
+        if (선택지대화UI != null)
+        {
+            선택지대화UI.거리설정 = 선택지전거리;
+            선택지대화UI.SnapToTarget();
+        }
+
+        선택지대화UI = null;
+        선택지배치변경중 = false;
+    }
+
     IEnumerator ShowScenarioChoices(List<ChoiceData> choices)
     {
         nextIDResult = -1;
+
+        if (!선택지UI확보())
+        {
+            Debug.LogError(
+                "[ChatManager] ChoicePanel 안에서 선택지 버튼 텍스트를 찾지 못했습니다. " +
+                "대화를 종료하지 않고 현재 위치에서 멈춥니다.", this);
+            yield break;
+        }
+
+        // 직전 대사를 넘긴 트리거의 Pointer Up이 같은 프레임에 새 선택지까지
+        // 눌러 버리지 않도록, 화면이 뜬 뒤 새 입력만 받는다.
+        선택입력허용시간 = Time.unscaledTime + 0.35f;
+        선택지배치적용();
         choicePanel.SetActive(true);
 
         for (int i = 0; i < choiceButtonsText.Length; i++)
@@ -399,6 +678,7 @@ public class ChatManager : MonoBehaviour
                 btn.onClick.RemoveAllListeners();
                 btn.onClick.AddListener(() =>
                 {
+                    if (Time.unscaledTime < 선택입력허용시간) return;
                     StartCoroutine(OnchoieClicked(targetID, timeline));
                 });
             }
@@ -412,8 +692,18 @@ public class ChatManager : MonoBehaviour
 
     IEnumerator OnchoieClicked(int targetID, UnityEngine.Timeline.TimelineAsset timeline = null)
     {
+        if (GetEntryById(targetID) == null)
+        {
+            Debug.LogError($"[ChatManager] 선택지 대상 ID {targetID}가 없어 이동하지 않습니다.", this);
+            yield break;
+        }
+
         yield return new WaitForSecondsRealtime(0.15f);
         choicePanel.SetActive(false);
+        선택지배치복원();
+
+        if (timeline != null)
+            선택지Director확보(timeline);
 
         // ── VR: 선택 시 타임라인 재생 ──────────────────────────────
         // 타임라인이 끝난 뒤에 다음 대사로 넘어간다.
@@ -425,12 +715,15 @@ public class ChatManager : MonoBehaviour
 
             // 타임라인이 캐릭터의 포즈를 잡는 동안 CharacterFollow가 루트를 계속 밀면
             // 연출 중에 캐릭터가 걸어가 버린다. 재생 동안만 멈춰 세운다.
-            var follow = choiceDirector.GetComponent<VRProject.Character.CharacterFollow>();
+            var follow = choiceDirector.GetComponentInParent<VRProject.Character.CharacterFollow>();
             bool followWasPaused = follow != null && follow.Paused;
             if (follow != null && pauseDuringTimeline) follow.Paused = true;
 
             choiceDirector.playableAsset = timeline;
             WarnIfTracksUnbound(timeline);
+
+            float groundY = bodyAnimator != null ? bodyAnimator.transform.position.y : 0f;
+            타임라인발고정중 = 발높이읽기(out 타임라인바닥발높이);
 
             choiceDirector.time = 0;
             choiceDirector.Play();
@@ -445,7 +738,15 @@ public class ChatManager : MonoBehaviour
                 yield return null;
             }
 
+            타임라인발고정중 = false;
             choiceDirector.Stop();
+
+            if (bodyAnimator != null)
+            {
+                Vector3 position = bodyAnimator.transform.position;
+                position.y = groundY;
+                bodyAnimator.transform.position = position;
+            }
 
             if (follow != null && pauseDuringTimeline) follow.Paused = followWasPaused;
             if (pauseDuringTimeline) isPausedByMenu = wasPaused;
@@ -457,6 +758,77 @@ public class ChatManager : MonoBehaviour
         }
 
         nextIDResult = targetID;
+    }
+
+    private bool 발높이읽기(out float lowestY)
+    {
+        lowestY = 0f;
+        if (bodyAnimator == null || !bodyAnimator.isHuman || bodyAnimator.avatar == null)
+            return false;
+
+        Transform leftFoot = bodyAnimator.GetBoneTransform(HumanBodyBones.LeftFoot);
+        Transform rightFoot = bodyAnimator.GetBoneTransform(HumanBodyBones.RightFoot);
+        Transform leftToes = bodyAnimator.GetBoneTransform(HumanBodyBones.LeftToes);
+        Transform rightToes = bodyAnimator.GetBoneTransform(HumanBodyBones.RightToes);
+
+        bool found = false;
+        lowestY = float.PositiveInfinity;
+        Transform[] feet = { leftFoot, rightFoot, leftToes, rightToes };
+        foreach (Transform foot in feet)
+        {
+            if (foot == null) continue;
+            lowestY = Mathf.Min(lowestY, foot.position.y);
+            found = true;
+        }
+        return found;
+    }
+
+    private void 타임라인발높이보정()
+    {
+        if (bodyAnimator == null || !발높이읽기(out float currentFootY)) return;
+
+        float correction = 타임라인바닥발높이 - currentFootY;
+        // 발이 올라가는 동작은 애니메이션 그대로 둔다. 기준 바닥 아래로 내려갈 때만 올린다.
+        if (correction <= 0.0001f) return;
+
+        // 잘못된 리그가 수십 미터를 반환해도 캐릭터가 튀지 않게 한 프레임 보정량을 제한한다.
+        correction = Mathf.Min(correction, 0.5f);
+        Vector3 position = bodyAnimator.transform.position;
+        position.y += correction;
+        bodyAnimator.transform.position = position;
+    }
+
+    private void 선택지Director확보(UnityEngine.Timeline.TimelineAsset timeline)
+    {
+        if (timeline == null) return;
+
+        if (bodyAnimator == null)
+        {
+            var follow = FindAnyObjectByType<VRProject.Character.CharacterFollow>();
+            if (follow != null) bodyAnimator = follow.GetComponentInChildren<Animator>();
+        }
+
+        if (bodyAnimator == null)
+        {
+            Debug.LogError($"[ChatManager] '{timeline.name}'을 재생할 아루 Animator를 찾지 못했습니다.", this);
+            return;
+        }
+
+        if (choiceDirector == null)
+        {
+            choiceDirector = bodyAnimator.GetComponent<UnityEngine.Playables.PlayableDirector>();
+            if (choiceDirector == null)
+                choiceDirector = bodyAnimator.gameObject.AddComponent<UnityEngine.Playables.PlayableDirector>();
+        }
+
+        choiceDirector.playOnAwake = false;
+        choiceDirector.playableAsset = timeline;
+
+        foreach (var track in timeline.GetOutputTracks())
+        {
+            if (track is UnityEngine.Timeline.AnimationTrack)
+                choiceDirector.SetGenericBinding(track, bodyAnimator);
+        }
     }
 
     /// <summary>
@@ -580,6 +952,11 @@ public class ChatManager : MonoBehaviour
         // Quest 컨트롤러의 A/B(오른손), X/Y(왼손). VR에서는 이게 주 입력이다.
         if (vrAdvanceAction != null && vrAdvanceAction.action != null
             && vrAdvanceAction.action.WasPressedThisFrame())
+        {
+            return true;
+        }
+
+        if (자동VR넘김액션 != null && 자동VR넘김액션.WasPressedThisFrame())
         {
             return true;
         }

@@ -65,6 +65,15 @@ public class DialogueEntry
     [Header("이 대사 동안 입모양 애니메이션을 재생합니다")]
     public bool playMouthAnimation = false;
 
+    [Header("이 대사가 시작될 때 재생할 전신 애니메이션")]
+    public AnimationClip bodyAnimation;
+
+    [Tooltip("체크하면 애니메이션이 끝난 뒤 Standing Idle로 돌아갑니다.\n" +
+             "끄면 마지막 자세 또는 반복 동작을 다음 연출까지 유지합니다.")]
+    public bool returnToIdleAfterBodyAnimation = true;
+
+    [HideInInspector] public string bodyAnimationStateName;
+
     [Header("캐릭터 통 일러스트(1980x1080)")]
     public Sprite characterIllust;
 
@@ -85,8 +94,10 @@ public class DialogueEntry
     public List<ChoiceData> choices = new List<ChoiceData>();
 
     [Header("캐릭터 개별 데이터")]
-    public CharaterData Char1;
-    public CharaterData Char2;
+    // 새 대사를 코드나 YAML에서 만들 때도 MasterTools의 접이식 편집기가
+    // null 데이터를 만나지 않도록 기본 인스턴스를 보장한다.
+    public CharaterData Char1 = new CharaterData();
+    public CharaterData Char2 = new CharaterData();
 
     [Header("이 대사 이후 이동할 번호 (기본 값 -1은 순차진행)")]
     public int nextIndexOverride = -1;

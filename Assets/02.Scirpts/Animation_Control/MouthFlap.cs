@@ -75,6 +75,7 @@ namespace VRProject.Character
         private float 전체경과;
         private bool 재생중;
         private bool 닫는중;           // 멈춘 뒤 입을 0으로 되돌리는 동안
+        private bool 음성종료대기;     // true면 최대시간 대신 AudioSource 종료 신호를 기다린다.
 
         /// <summary>지금 입이 움직이고 있는지.</summary>
         public bool 재생중인가 => 재생중;
@@ -89,6 +90,20 @@ namespace VRProject.Character
         /// </summary>
         public void 재생시작()
         {
+            재생시작내부(false);
+        }
+
+        /// <summary>
+        /// 음성 길이에 맞춰 재생한다. 최대재생시간 안전장치를 사용하지 않고,
+        /// ChatManager가 AudioSource 종료를 확인해 재생중지를 호출할 때까지 움직인다.
+        /// </summary>
+        public void 음성동기재생시작()
+        {
+            재생시작내부(true);
+        }
+
+        private void 재생시작내부(bool 음성에맞춤)
+        {
             Resolve();
             if (모프인덱스 == null || 모프인덱스.Length == 0) return;
 
@@ -97,6 +112,7 @@ namespace VRProject.Character
             전체경과 = 0f;
             닫는중 = false;
             재생중 = true;
+            음성종료대기 = 음성에맞춤;
 
             // 표정에게서 입을 넘겨받는다.
             if (표정 != null) 표정.립싱크사용중 = true;
@@ -114,6 +130,7 @@ namespace VRProject.Character
 
             재생중 = false;
             닫는중 = true;
+            음성종료대기 = false;
         }
 
         /// <summary>
@@ -187,7 +204,7 @@ namespace VRProject.Character
             if (재생중)
             {
                 전체경과 += Time.deltaTime;
-                if (전체경과 >= 최대재생시간)
+                if (!음성종료대기 && 전체경과 >= 최대재생시간)
                 {
                     재생중지();
                 }
@@ -312,6 +329,7 @@ namespace VRProject.Character
 
             재생중 = false;
             닫는중 = false;
+            음성종료대기 = false;
             if (표정 != null) 표정.립싱크사용중 = false;
         }
 

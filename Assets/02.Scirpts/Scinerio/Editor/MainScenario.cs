@@ -248,6 +248,25 @@ public class MainScenario : EditorWindow
 
                             EditorGUILayout.Space(5);
 
+                            EditorGUILayout.LabelField("전신 연출", EditorStyles.boldLabel);
+                            SerializedProperty bodyAnimationProp =
+                                element.FindPropertyRelative("bodyAnimation");
+                            EditorGUILayout.PropertyField(
+                                bodyAnimationProp,
+                                new GUIContent("전신 애니메이션",
+                                    "대사가 시작될 때 캐릭터 Animator에서 재생할 애니메이션입니다."));
+
+                            if (bodyAnimationProp != null &&
+                                bodyAnimationProp.objectReferenceValue != null)
+                            {
+                                EditorGUILayout.PropertyField(
+                                    element.FindPropertyRelative("returnToIdleAfterBodyAnimation"),
+                                    new GUIContent("끝나면 Idle 복귀",
+                                        "끄면 마지막 자세 또는 반복 동작을 유지합니다."));
+                            }
+
+                            EditorGUILayout.Space(5);
+
                             EditorGUILayout.PropertyField(element.FindPropertyRelative("showChatUI"), new GUIContent("채팅창 표시 여부: 체크하면 켜지고 해제하면 꺼집니다"));
 
                             EditorGUILayout.Space(5);

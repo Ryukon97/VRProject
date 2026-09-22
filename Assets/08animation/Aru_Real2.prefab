@@ -318,6 +318,9 @@ PrefabInstance:
       addedObject: {fileID: 2234597909910188545}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45d76d88530d71b44bacc9040f731362, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 8746329105573182041}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 45d76d88530d71b44bacc9040f731362, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 14699333317978777}
   m_SourcePrefab: {fileID: 100100000, guid: 45d76d88530d71b44bacc9040f731362, type: 3}
 --- !u!4 &53712270102292458 stripped
@@ -732,6 +735,31 @@ MonoBehaviour:
       "\uAC00\uC911\uCE58": 100
     "\uC804\uD658\uC2DC\uAC04": 0.1
     "\uAE5C\uBE61\uC784_\uC815\uC9C0": 0
+--- !u!114 &8746329105573182041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5601411766842511789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07fd6caca84b98845bfeb0f7a84b15a7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VRProject.Character.MouthFlap
+  "\uB80C\uB354\uB7EC": {fileID: 6331182436397658542}
+  "\uD45C\uC815": {fileID: 2234597909910188545}
+  "\uC21C\uC11C":
+  - "\uBAA8\uD504": "\u3042"
+    "\uAC00\uC911\uCE58": 100
+  - "\uBAA8\uD504": "\u304A"
+    "\uAC00\uC911\uCE58": 50
+  - "\uBAA8\uD504": "\u3048"
+    "\uAC00\uC911\uCE58": 100
+  "\uB2E8\uACC4\uC2DC\uAC04": 0.12
+  "\uC804\uD658\uC18D\uB3C4": 700
+  "\uCD5C\uB300\uC7AC\uC0DD\uC2DC\uAC04": 5
+  "\uC9C4\uB2E8\uB85C\uADF8": 0
 --- !u!114 &14699333317978777
 MonoBehaviour:
   m_ObjectHideFlags: 0

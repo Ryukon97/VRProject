@@ -65,6 +65,26 @@ public class BGMManager : MonoBehaviour
 
     private bool 페이드중;
 
+    public void StopBGM()
+    {
+        StopAllCoroutines();
+        페이드중 = false;
+
+        if (SourceA != null)
+        {
+            SourceA.Stop();
+            SourceA.clip = null;
+        }
+
+        if (SourceB != null)
+        {
+            SourceB.Stop();
+            SourceB.clip = null;
+        }
+
+        currentPlayingClip = null;
+    }
+
     public void PlayOneShotSE(AudioClip clip, float volume)
     {
         if (clip == null) return;

@@ -82,6 +82,22 @@ namespace VRProject.Flow
             {
                 XR리그확보();
                 if (VR입력_자동설정) VR입력맞추기();
+                StartCoroutine(추적적용후재배치());
+            }
+
+            제자리로();
+        }
+
+        private System.Collections.IEnumerator 추적적용후재배치()
+        {
+            // Quest의 실제 HMD 위치와 회전은 씬 시작 직후 여러 프레임에 걸쳐
+            // 안정된다. 두 프레임만 기다리면 초기 자세를 기준으로 메뉴가 아래나
+            // 옆에 남을 수 있으므로, 짧은 준비 시간 동안 계속 시선 중앙에 맞춘다.
+            float 끝나는시간 = Time.unscaledTime + 0.75f;
+            while (Time.unscaledTime < 끝나는시간)
+            {
+                제자리로();
+                yield return null;
             }
 
             제자리로();
@@ -112,9 +128,10 @@ namespace VRProject.Flow
         /// <summary>씬에 XR Origin이 없으면 프리팹으로 하나 만든다.</summary>
         private void XR리그확보()
         {
-            if (FindAnyObjectByType<Unity.XR.CoreUtils.XROrigin>() != null) return;
+            Unity.XR.CoreUtils.XROrigin origin =
+                FindAnyObjectByType<Unity.XR.CoreUtils.XROrigin>();
 
-            if (XR리그프리팹 == null)
+            if (origin == null && XR리그프리팹 == null)
             {
                 Debug.LogWarning(
                     "[TitleVRUI] 씬에 XR Origin이 없다. 머리 추적과 컨트롤러가 없어서 " +
@@ -124,13 +141,58 @@ namespace VRProject.Flow
                 return;
             }
 
-            GameObject rig = Instantiate(XR리그프리팹);
-            rig.name = XR리그프리팹.name;
+            if (origin == null)
+            {
+                GameObject rig = Instantiate(XR리그프리팹);
+                rig.name = XR리그프리팹.name;
+                rig.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+                origin = rig.GetComponent<Unity.XR.CoreUtils.XROrigin>();
+                Debug.Log($"[TitleVRUI] 씬에 XR Origin이 없어 '{rig.name}'을 만들었다.", rig);
+            }
 
-            // 새로 만든 리그의 카메라를 기준으로 다시 맞춘다.
-            if (Camera.main != null) canvas.worldCamera = Camera.main;
+            타이틀리그고정(origin);
 
-            Debug.Log($"[TitleVRUI] 씬에 XR Origin이 없어 '{rig.name}'을 만들었다.", rig);
+            Camera xrCamera = origin != null ? origin.Camera : null;
+            if (xrCamera != null)
+            {
+                기준카메라 = xrCamera.transform;
+                canvas.worldCamera = xrCamera;
+                xrCamera.clearFlags = CameraClearFlags.SolidColor;
+                xrCamera.backgroundColor = Color.black;
+
+                // 씬에 XR 리그를 직접 둔 경우 Camera.main이 어느 카메라를 먼저
+                // 반환할지는 보장되지 않는다. XR 카메라 이외의 기존 카메라를 모두
+                // 꺼서 두 카메라와 두 AudioListener가 동시에 동작하지 않게 한다.
+                foreach (Camera sceneCamera in FindObjectsByType<Camera>(FindObjectsSortMode.None))
+                {
+                    if (sceneCamera == xrCamera) continue;
+                    if (sceneCamera.transform.IsChildOf(origin.transform)) continue;
+                    sceneCamera.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        private static void 타이틀리그고정(Unity.XR.CoreUtils.XROrigin origin)
+        {
+            if (origin == null) return;
+
+            origin.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+            foreach (MonoBehaviour component in origin.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                string typeName = component.GetType().Name;
+                if (typeName.Contains("MoveProvider") ||
+                    typeName.Contains("TurnProvider") ||
+                    typeName.Contains("TeleportationProvider") ||
+                    typeName.Contains("GravityProvider") ||
+                    typeName.Contains("CharacterControllerDriver"))
+                {
+                    component.enabled = false;
+                }
+            }
+
+            CharacterController controller = origin.GetComponent<CharacterController>();
+            if (controller != null) controller.enabled = false;
         }
 
         /// <summary>
@@ -189,23 +251,18 @@ namespace VRProject.Flow
 
         private Vector3 목표위치(Transform cam)
         {
-            Vector3 forward = cam.forward;
-
-            // 고개를 위아래로 끄덕여도 타이틀이 출렁이지 않게 수평 방향만 쓴다.
-            forward.y = 0f;
-            if (forward.sqrMagnitude < 1e-6f) forward = cam.forward;
-            forward.Normalize();
-
-            return cam.position + forward * 거리 + Vector3.up * 높이오프셋;
+            // 타이틀은 시작할 때 사용자가 실제로 보는 정면에 있어야 한다.
+            // 수평 방향만 사용하면 HMD가 조금만 위아래로 기울어도 화면 중심에서
+            // 크게 벗어나므로 카메라의 실제 forward를 그대로 사용한다.
+            return cam.position + cam.forward.normalized * 거리 + Vector3.up * 높이오프셋;
         }
 
         private void 정면보기(Transform cam)
         {
             Vector3 dir = transform.position - cam.position;
-            dir.y = 0f;
             if (dir.sqrMagnitude < 1e-6f) return;
 
-            transform.rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+            transform.rotation = Quaternion.LookRotation(dir.normalized, cam.up);
         }
 
         /// <summary>보간 없이 즉시 제자리로. 씬이 막 시작했을 때 쓴다.</summary>
